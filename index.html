@@ -2,75 +2,174 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Twiga Data Bridge - POS Analytics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Twiga Data Bridge | Retail Intelligence</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2563eb">
+  <meta name="theme-color" content="#EDE5C8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Tailwind CSS & Engine CDNs -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS v2 & Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'canvas': '#F5F2E8',
+            'vanilla': '#EDE5C8',
+            'charcoal': '#3E3E3C',
+            'sea-green': '#228D57',
+            'willow': '#85BB65',
+            'gold': '#D4AF37'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #F5F2E8;
+      color: #3E3E3C;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-vanilla {
+      background-color: #EDE5C8;
+      box-shadow: 0 4px 20px -2px rgba(62, 62, 60, 0.08);
+    }
+    .badge-growth {
+      background-color: rgba(133, 187, 101, 0.18);
+      color: #228D57;
+    }
+    .gold-badge {
+      background-color: #D4AF37;
+      color: #FFFFFF;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.45; }
+    }
+    .skeleton {
+      animation: pulse-subtle 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      background-color: rgba(62, 62, 60, 0.1);
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen">
-  <div class="max-w-4xl mx-auto p-4 sm:p-6">
-    <header class="flex items-center justify-between pb-6 border-b border-slate-800">
+<body class="min-h-screen pb-12 pt-safe selection:bg-sea-green selection:text-white">
+
+  <!-- Main Container -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
+
+    <!-- Top Navigation / App Header -->
+    <header class="flex items-center justify-between pb-6 border-b border-charcoal/10">
       <div>
-        <h1 class="text-2xl font-bold tracking-tight text-white">Twiga Data Bridge</h1>
-        <p class="text-xs text-slate-400">Simba POS Intelligence Command Center</p>
+        <div class="flex items-center gap-2">
+          <span class="inline-block w-2.5 h-2.5 rounded-full bg-sea-green"></span>
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-charcoal uppercase">Twiga Data Bridge</h1>
+        </div>
+        <p class="text-xs text-charcoal/70 tracking-wide font-medium mt-0.5">Simba POS Intelligence Console</p>
       </div>
-      <span id="syncBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-        Live Sync
-      </span>
+
+      <!-- Status Indicator -->
+      <div class="flex items-center gap-2 bg-vanilla px-3 py-1.5 rounded-full border border-charcoal/10 shadow-sm">
+        <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
+        <span class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
+      </div>
     </header>
 
-    <!-- Error Banner (Hidden by default) -->
-    <div id="errorBanner" class="hidden mt-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-300 text-xs"></div>
+    <!-- Error Banner -->
+    <div id="errorBanner" class="hidden mt-4 p-4 rounded-xl bg-red-100 border border-red-300 text-charcoal text-xs font-semibold"></div>
 
-    <!-- Metrics Cards -->
+    <!-- KPI Metric Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-      <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
-        <span class="text-xs text-slate-400 font-medium">Top Selling Product</span>
-        <p id="topProduct" class="text-lg font-bold text-white mt-1">Loading...</p>
+      
+      <!-- Card 1: Top SKU (With Gold Luxury Accent) -->
+      <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5 relative overflow-hidden">
+        <div class="flex justify-between items-start">
+          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Top Volume SKU</span>
+          <span class="gold-badge text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm">Leader</span>
+        </div>
+        <div id="topProductContainer" class="mt-3">
+          <div id="topProductSkeleton" class="h-7 w-3/4 skeleton rounded"></div>
+          <p id="topProduct" class="hidden text-lg sm:text-xl font-black text-charcoal truncate"></p>
+        </div>
+        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Highest checkout demand</p>
       </div>
-      <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
-        <span class="text-xs text-slate-400 font-medium">Units Sold</span>
-        <p id="totalUnits" class="text-lg font-bold text-white mt-1">0</p>
+
+      <!-- Card 2: Units Sold -->
+      <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
+        <div class="flex justify-between items-start">
+          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Units Dispatched</span>
+          <span class="badge-growth text-[10px] font-bold px-2 py-0.5 rounded-full">Daily Agg.</span>
+        </div>
+        <div id="unitsContainer" class="mt-3">
+          <div id="unitsSkeleton" class="h-7 w-1/2 skeleton rounded"></div>
+          <p id="totalUnits" class="hidden text-2xl font-black text-charcoal"></p>
+        </div>
+        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Aggregated line items</p>
       </div>
-      <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50">
-        <span class="text-xs text-slate-400 font-medium">Total Gross Volume</span>
-        <p id="totalRevenue" class="text-lg font-bold text-emerald-400 mt-1">KSh 0</p>
+
+      <!-- Card 3: Total Gross Revenue (Primary Data Sea Green) -->
+      <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
+        <div class="flex justify-between items-start">
+          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Gross Revenue</span>
+          <span class="bg-sea-green/10 text-sea-green text-[10px] font-extrabold px-2 py-0.5 rounded-full">KES</span>
+        </div>
+        <div id="revenueContainer" class="mt-3">
+          <div id="revenueSkeleton" class="h-7 w-2/3 skeleton rounded"></div>
+          <p id="totalRevenue" class="hidden text-2xl font-black text-sea-green"></p>
+        </div>
+        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Cleared register total</p>
       </div>
+
     </div>
 
-    <!-- Chart -->
-    <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50 mt-6">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-sm font-semibold text-slate-200">Revenue Breakdown by Product</h2>
-        <span id="reportDate" class="text-xs text-slate-400 font-mono"></span>
+    <!-- Chart Canvas Card -->
+    <div class="card-vanilla p-6 rounded-2xl border border-charcoal/5 mt-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-charcoal/10 gap-2">
+        <div>
+          <h2 class="text-sm font-black uppercase tracking-wider text-charcoal">Product Gross Revenue (KES)</h2>
+          <p class="text-xs text-charcoal/60 font-medium">Distribution by verified inventory SKU</p>
+        </div>
+        <span id="reportDate" class="text-[11px] font-bold tracking-wider uppercase text-charcoal/70 bg-canvas px-2.5 py-1 rounded-md border border-charcoal/10 w-fit">
+          Synchronizing...
+        </span>
       </div>
-      <div class="relative w-full" style="height: 320px;">
+
+      <!-- Chart Viewport -->
+      <div class="relative w-full mt-4" style="height: 320px;">
         <canvas id="salesChart"></canvas>
       </div>
     </div>
+
+    <!-- Footer Meta -->
+    <footer class="mt-8 text-center text-xs text-charcoal/50 font-medium pb-4">
+      Twiga Data Bridge &copy; 2026 &bull; Direct POS Pipeline Integration
+    </footer>
+
   </div>
 
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js').catch(() => {});
     }
 
-    // --- PASTE YOUR EXACT CREDENTIALS HERE ---
     const SUPABASE_URL = 'https://ofyrcyrzdeqacbatpgyk.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDUzMzYyMCwiZXhwIjoyMTA2MTA5NjIwfQ.Smzoe8BT5eMyJvKe7qXqlYs1TV6SqiJw6sSCJ2i3PFI';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI0NjUsImV4cCI6MjA5MDUzODQ2NX0.9P1t04yVn23Z5jL3c0F1y1aL9S8r_qV8J3T6y1c0F1y';
 
-    let chartInstance = null;
+    let salesChartInstance = null;
 
     async function loadDashboard() {
       const errorBanner = document.getElementById('errorBanner');
-      const topProductEl = document.getElementById('topProduct');
-      const totalUnitsEl = document.getElementById('totalUnits');
-      const totalRevenueEl = document.getElementById('totalRevenue');
-      const reportDateEl = document.getElementById('reportDate');
+      const topProduct = document.getElementById('topProduct');
+      const totalUnits = document.getElementById('totalUnits');
+      const totalRevenue = document.getElementById('totalRevenue');
+      const reportDate = document.getElementById('reportDate');
 
       try {
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -81,50 +180,51 @@
           .eq('metric_type', 'PRODUCT_PERFORMANCE')
           .order('total_volume', { ascending: false });
 
-        if (error) {
-          errorBanner.textContent = `Supabase Error: ${error.message} (Code: ${error.code})`;
-          errorBanner.classList.remove('hidden');
-          topProductEl.textContent = 'Query Failed';
-          return;
-        }
-
+        if (error) throw error;
         if (!data || data.length === 0) {
-          topProductEl.textContent = 'No Data Found';
-          errorBanner.textContent = 'Connected to Supabase, but daily_aggregates table returned 0 rows.';
-          errorBanner.classList.remove('hidden');
+          reportDate.textContent = 'No Data Logged';
           return;
         }
 
-        // Populate Key Performance Indicators
-        topProductEl.textContent = data[0].metric_label;
-        reportDateEl.textContent = `Date: ${data[0].report_date}`;
+        // Hide Skeletons and Reveal Metrics
+        document.getElementById('topProductSkeleton').classList.add('hidden');
+        document.getElementById('unitsSkeleton').classList.add('hidden');
+        document.getElementById('revenueSkeleton').classList.add('hidden');
 
-        const totalUnits = data.reduce((acc, row) => acc + (parseInt(row.total_count) || 0), 0);
-        const totalRev = data.reduce((acc, row) => acc + (parseFloat(row.total_volume) || 0), 0);
+        topProduct.classList.remove('hidden');
+        totalUnits.classList.remove('hidden');
+        totalRevenue.classList.remove('hidden');
 
-        totalUnitsEl.textContent = totalUnits.toLocaleString();
-        totalRevenueEl.textContent = `KSh ${totalRev.toLocaleString()}`;
+        // Set Aggregates
+        topProduct.textContent = data[0].metric_label;
+        reportDate.textContent = `Shift Date: ${data[0].report_date}`;
 
-        // Render Chart.js
-        const labels = data.map(row => row.metric_label);
-        const volumes = data.map(row => parseFloat(row.total_volume));
+        const units = data.reduce((sum, item) => sum + (parseInt(item.total_count) || 0), 0);
+        const revenue = data.reduce((sum, item) => sum + (parseFloat(item.total_volume) || 0), 0);
 
-        const canvas = document.getElementById('salesChart');
-        const ctx = canvas.getContext('2d');
+        totalUnits.textContent = units.toLocaleString();
+        totalRevenue.textContent = `KSh ${revenue.toLocaleString()}`;
 
-        if (chartInstance) {
-          chartInstance.destroy();
-        }
+        // Prepare Chart with 12px Radius and Palette
+        const labels = data.map(d => d.metric_label);
+        const volumes = data.map(d => parseFloat(d.total_volume));
 
-        chartInstance = new Chart(ctx, {
+        // Top performer gets Metallic Gold accent cap, others get Primary Sea Green
+        const barColors = data.map((_, index) => index === 0 ? '#D4AF37' : '#228D57');
+
+        const ctx = document.getElementById('salesChart').getContext('2d');
+        if (salesChartInstance) salesChartInstance.destroy();
+
+        salesChartInstance = new Chart(ctx, {
           type: 'bar',
           data: {
             labels: labels,
             datasets: [{
-              label: 'Gross Volume (KSh)',
               data: volumes,
-              backgroundColor: '#3b82f6',
-              borderRadius: 6
+              backgroundColor: barColors,
+              borderRadius: 12,
+              borderSkipped: false,
+              barThickness: 32
             }]
           },
           options: {
@@ -133,6 +233,13 @@
             plugins: {
               legend: { display: false },
               tooltip: {
+                backgroundColor: '#3E3E3C',
+                titleColor: '#EDE5C8',
+                bodyColor: '#FFFFFF',
+                titleFont: { size: 12, weight: 'bold' },
+                bodyFont: { size: 13, weight: 'bold' },
+                padding: 10,
+                cornerRadius: 8,
                 callbacks: {
                   label: (ctx) => ` Revenue: KSh ${Number(ctx.raw).toLocaleString()}`
                 }
@@ -140,28 +247,33 @@
             },
             scales: {
               x: {
-                ticks: { color: '#94a3b8', font: { size: 11 } },
-                grid: { display: false }
+                grid: { display: false },
+                ticks: {
+                  color: '#3E3E3C',
+                  font: { size: 11, weight: '600' }
+                }
               },
               y: {
-                ticks: {
-                  color: '#94a3b8',
-                  callback: (val) => 'KSh ' + Number(val).toLocaleString()
+                grid: {
+                  color: 'rgba(62, 62, 60, 0.08)'
                 },
-                grid: { color: '#334155' }
+                ticks: {
+                  color: '#3E3E3C',
+                  font: { size: 11 },
+                  callback: (val) => 'KSh ' + (val >= 1000 ? (val/1000) + 'k' : val)
+                }
               }
             }
           }
         });
 
       } catch (err) {
-        errorBanner.textContent = `Runtime Exception: ${err.message}`;
+        errorBanner.textContent = `Connection Alert: ${err.message || 'Unable to fetch Supabase aggregates.'}`;
         errorBanner.classList.remove('hidden');
-        topProductEl.textContent = 'Error';
+        reportDate.textContent = 'Sync Offline';
       }
     }
 
-    // Ensure DOM is ready before executing
     window.addEventListener('DOMContentLoaded', loadDashboard);
   </script>
 </body>
