@@ -7,6 +7,7 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2563eb">
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS v2 & Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -17,8 +18,13 @@
         <h1 class="text-2xl font-bold tracking-tight text-white">Twiga Data Bridge</h1>
         <p class="text-xs text-slate-400">Simba POS Intelligence Command Center</p>
       </div>
-      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live Sync</span>
+      <span id="syncBadge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        Live Sync
+      </span>
     </header>
+
+    <!-- Error Banner (Hidden by default) -->
+    <div id="errorBanner" class="hidden mt-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-300 text-xs"></div>
 
     <!-- Metrics Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
@@ -38,74 +44,125 @@
 
     <!-- Chart -->
     <div class="bg-slate-800/60 p-4 rounded-xl border border-slate-700/50 mt-6">
-      <h2 class="text-sm font-semibold text-slate-200 mb-4">Revenue Breakdown by Product</h2>
-      <div class="relative h-64 sm:h-80">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-sm font-semibold text-slate-200">Revenue Breakdown by Product</h2>
+        <span id="reportDate" class="text-xs text-slate-400 font-mono"></span>
+      </div>
+      <div class="relative w-full" style="height: 320px;">
         <canvas id="salesChart"></canvas>
       </div>
     </div>
   </div>
 
   <script>
-    // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(console.error);
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
 
-    // --- INSERT YOUR SUPABASE CREDENTIALS HERE ---
+    // --- PASTE YOUR EXACT CREDENTIALS HERE ---
     const SUPABASE_URL = 'https://ofyrcyrzdeqacbatpgyk.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MzM2MjAsImV4cCI6MjEwNjEwOTYyMH0.vxtZbc48Wz5X8BI7knJJjPBedfNk0JjJja5VM6ByPSU';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MDUzMzYyMCwiZXhwIjoyMTA2MTA5NjIwfQ.Smzoe8BT5eMyJvKe7qXqlYs1TV6SqiJw6sSCJ2i3PFI';
 
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let chartInstance = null;
 
     async function loadDashboard() {
-      const { data, error } = await supabaseClient
-        .from('daily_aggregates')
-        .select('metric_label, total_volume, total_count')
-        .eq('metric_type', 'PRODUCT_PERFORMANCE')
-        .order('total_volume', { ascending: false });
+      const errorBanner = document.getElementById('errorBanner');
+      const topProductEl = document.getElementById('topProduct');
+      const totalUnitsEl = document.getElementById('totalUnits');
+      const totalRevenueEl = document.getElementById('totalRevenue');
+      const reportDateEl = document.getElementById('reportDate');
 
-      if (error) {
-        console.error('Fetch error:', error);
-        return;
-      }
+      try {
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      if (!data || data.length === 0) return;
+        const { data, error } = await client
+          .from('daily_aggregates')
+          .select('report_date, metric_label, total_volume, total_count')
+          .eq('metric_type', 'PRODUCT_PERFORMANCE')
+          .order('total_volume', { ascending: false });
 
-      document.getElementById('topProduct').textContent = data[0].metric_label;
-      const totalUnits = data.reduce((sum, item) => sum + item.total_count, 0);
-      const totalRev = data.reduce((sum, item) => sum + parseFloat(item.total_volume), 0);
-
-      document.getElementById('totalUnits').textContent = totalUnits.toLocaleString();
-      document.getElementById('totalRevenue').textContent = `KSh ${totalRev.toLocaleString()}`;
-
-      const labels = data.map(d => d.metric_label);
-      const volumes = data.map(d => d.total_volume);
-
-      const ctx = document.getElementById('salesChart').getContext('2d');
-      new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Gross Volume (KSh)',
-            data: volumes,
-            backgroundColor: '#3b82f6',
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
-            y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' } }
-          }
+        if (error) {
+          errorBanner.textContent = `Supabase Error: ${error.message} (Code: ${error.code})`;
+          errorBanner.classList.remove('hidden');
+          topProductEl.textContent = 'Query Failed';
+          return;
         }
-      });
+
+        if (!data || data.length === 0) {
+          topProductEl.textContent = 'No Data Found';
+          errorBanner.textContent = 'Connected to Supabase, but daily_aggregates table returned 0 rows.';
+          errorBanner.classList.remove('hidden');
+          return;
+        }
+
+        // Populate Key Performance Indicators
+        topProductEl.textContent = data[0].metric_label;
+        reportDateEl.textContent = `Date: ${data[0].report_date}`;
+
+        const totalUnits = data.reduce((acc, row) => acc + (parseInt(row.total_count) || 0), 0);
+        const totalRev = data.reduce((acc, row) => acc + (parseFloat(row.total_volume) || 0), 0);
+
+        totalUnitsEl.textContent = totalUnits.toLocaleString();
+        totalRevenueEl.textContent = `KSh ${totalRev.toLocaleString()}`;
+
+        // Render Chart.js
+        const labels = data.map(row => row.metric_label);
+        const volumes = data.map(row => parseFloat(row.total_volume));
+
+        const canvas = document.getElementById('salesChart');
+        const ctx = canvas.getContext('2d');
+
+        if (chartInstance) {
+          chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Gross Volume (KSh)',
+              data: volumes,
+              backgroundColor: '#3b82f6',
+              borderRadius: 6
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (ctx) => ` Revenue: KSh ${Number(ctx.raw).toLocaleString()}`
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { color: '#94a3b8', font: { size: 11 } },
+                grid: { display: false }
+              },
+              y: {
+                ticks: {
+                  color: '#94a3b8',
+                  callback: (val) => 'KSh ' + Number(val).toLocaleString()
+                },
+                grid: { color: '#334155' }
+              }
+            }
+          }
+        });
+
+      } catch (err) {
+        errorBanner.textContent = `Runtime Exception: ${err.message}`;
+        errorBanner.classList.remove('hidden');
+        topProductEl.textContent = 'Error';
+      }
     }
 
-    loadDashboard();
+    // Ensure DOM is ready before executing
+    window.addEventListener('DOMContentLoaded', loadDashboard);
   </script>
 </body>
 </html>
