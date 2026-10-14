@@ -5,15 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Twiga Data Bridge | Retail Intelligence</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
   <meta name="theme-color" content="#EDE5C8">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
-  <!-- Tailwind CSS & Engine CDNs -->
+  <!-- Tailwind CSS & Client CDNs -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Tailwind Token Configuration -->
   <script>
     tailwind.config = {
       theme: {
@@ -31,38 +33,11 @@
     }
   </script>
 
-  <style>
-    body {
-      background-color: #F5F2E8;
-      color: #3E3E3C;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .card-vanilla {
-      background-color: #EDE5C8;
-      box-shadow: 0 4px 20px -2px rgba(62, 62, 60, 0.08);
-    }
-    .badge-growth {
-      background-color: rgba(133, 187, 101, 0.18);
-      color: #228D57;
-    }
-    .gold-badge {
-      background-color: #D4AF37;
-      color: #FFFFFF;
-    }
-    @keyframes pulse-subtle {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.45; }
-    }
-    .skeleton {
-      animation: pulse-subtle 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-      background-color: rgba(62, 62, 60, 0.1);
-    }
-  </style>
+  <!-- Decoupled App Engine (Deferred) -->
+  <script src="app.js" defer></script>
 </head>
 <body class="min-h-screen pb-12 pt-safe selection:bg-sea-green selection:text-white">
 
-  <!-- Main Container -->
   <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6">
 
     <!-- Top Navigation / App Header -->
@@ -75,7 +50,6 @@
         <p class="text-xs text-charcoal/70 tracking-wide font-medium mt-0.5">Simba POS Intelligence Console</p>
       </div>
 
-      <!-- Status Indicator -->
       <div class="flex items-center gap-2 bg-vanilla px-3 py-1.5 rounded-full border border-charcoal/10 shadow-sm">
         <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
         <span class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
@@ -88,7 +62,7 @@
     <!-- KPI Metric Cards Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
       
-      <!-- Card 1: Top SKU (With Gold Luxury Accent) -->
+      <!-- Card 1: Top SKU -->
       <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5 relative overflow-hidden">
         <div class="flex justify-between items-start">
           <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Top Volume SKU</span>
@@ -114,7 +88,7 @@
         <p class="text-[11px] font-medium text-charcoal/60 mt-2">Aggregated line items</p>
       </div>
 
-      <!-- Card 3: Total Gross Revenue (Primary Data Sea Green) -->
+      <!-- Card 3: Total Gross Revenue -->
       <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
         <div class="flex justify-between items-start">
           <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Gross Revenue</span>
@@ -141,7 +115,6 @@
         </span>
       </div>
 
-      <!-- Chart Viewport -->
       <div class="relative w-full mt-4" style="height: 320px;">
         <canvas id="salesChart"></canvas>
       </div>
@@ -154,127 +127,5 @@
 
   </div>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    }
-
-    const SUPABASE_URL = 'https://ofyrcyrzdeqacbatpgyk.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MzM2MjAsImV4cCI6MjEwNjEwOTYyMH0.vxtZbc48Wz5X8BI7knJJjPBedfNk0JjJja5VM6ByPSU';
-
-    let salesChartInstance = null;
-
-    async function loadDashboard() {
-      const errorBanner = document.getElementById('errorBanner');
-      const topProduct = document.getElementById('topProduct');
-      const totalUnits = document.getElementById('totalUnits');
-      const totalRevenue = document.getElementById('totalRevenue');
-      const reportDate = document.getElementById('reportDate');
-
-      try {
-        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        const { data, error } = await client
-          .from('daily_aggregates')
-          .select('report_date, metric_label, total_volume, total_count')
-          .eq('metric_type', 'PRODUCT_PERFORMANCE')
-          .order('total_volume', { ascending: false });
-
-        if (error) throw error;
-        if (!data || data.length === 0) {
-          reportDate.textContent = 'No Data Logged';
-          return;
-        }
-
-        // Hide Skeletons and Reveal Metrics
-        document.getElementById('topProductSkeleton').classList.add('hidden');
-        document.getElementById('unitsSkeleton').classList.add('hidden');
-        document.getElementById('revenueSkeleton').classList.add('hidden');
-
-        topProduct.classList.remove('hidden');
-        totalUnits.classList.remove('hidden');
-        totalRevenue.classList.remove('hidden');
-
-        // Set Aggregates
-        topProduct.textContent = data[0].metric_label;
-        reportDate.textContent = `Shift Date: ${data[0].report_date}`;
-
-        const units = data.reduce((sum, item) => sum + (parseInt(item.total_count) || 0), 0);
-        const revenue = data.reduce((sum, item) => sum + (parseFloat(item.total_volume) || 0), 0);
-
-        totalUnits.textContent = units.toLocaleString();
-        totalRevenue.textContent = `KSh ${revenue.toLocaleString()}`;
-
-        // Prepare Chart with 12px Radius and Palette
-        const labels = data.map(d => d.metric_label);
-        const volumes = data.map(d => parseFloat(d.total_volume));
-
-        // Top performer gets Metallic Gold accent cap, others get Primary Sea Green
-        const barColors = data.map((_, index) => index === 0 ? '#D4AF37' : '#228D57');
-
-        const ctx = document.getElementById('salesChart').getContext('2d');
-        if (salesChartInstance) salesChartInstance.destroy();
-
-        salesChartInstance = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: labels,
-            datasets: [{
-              data: volumes,
-              backgroundColor: barColors,
-              borderRadius: 12,
-              borderSkipped: false,
-              barThickness: 32
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: {
-                backgroundColor: '#3E3E3C',
-                titleColor: '#EDE5C8',
-                bodyColor: '#FFFFFF',
-                titleFont: { size: 12, weight: 'bold' },
-                bodyFont: { size: 13, weight: 'bold' },
-                padding: 10,
-                cornerRadius: 8,
-                callbacks: {
-                  label: (ctx) => ` Revenue: KSh ${Number(ctx.raw).toLocaleString()}`
-                }
-              }
-            },
-            scales: {
-              x: {
-                grid: { display: false },
-                ticks: {
-                  color: '#3E3E3C',
-                  font: { size: 11, weight: '600' }
-                }
-              },
-              y: {
-                grid: {
-                  color: 'rgba(62, 62, 60, 0.08)'
-                },
-                ticks: {
-                  color: '#3E3E3C',
-                  font: { size: 11 },
-                  callback: (val) => 'KSh ' + (val >= 1000 ? (val/1000) + 'k' : val)
-                }
-              }
-            }
-          }
-        });
-
-      } catch (err) {
-        errorBanner.textContent = `Connection Alert: ${err.message || 'Unable to fetch Supabase aggregates.'}`;
-        errorBanner.classList.remove('hidden');
-        reportDate.textContent = 'Sync Offline';
-      }
-    }
-
-    window.addEventListener('DOMContentLoaded', loadDashboard);
-  </script>
 </body>
 </html>
