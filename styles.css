@@ -1,0 +1,41 @@
+/* Twiga Data Bridge - Luxury Palette & Custom Classes */
+:root {
+  --color-canvas: #F5F2E8;
+  --color-vanilla: #EDE5C8;
+  --color-charcoal: #3E3E3C;
+  --color-sea-green: #228D57;
+  --color-willow: #85BB65;
+  --color-gold: #D4AF37;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-charcoal);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card-vanilla {
+  background-color: var(--color-vanilla);
+  box-shadow: 0 4px 20px -2px rgba(62, 62, 60, 0.08);
+}
+
+.badge-growth {
+  background-color: rgba(133, 187, 101, 0.18);
+  color: var(--color-sea-green);
+}
+
+.gold-badge {
+  background-color: var(--color-gold);
+  color: #FFFFFF;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.skeleton {
+  animation: pulse-subtle 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: rgba(62, 62, 60, 0.1);
+}
