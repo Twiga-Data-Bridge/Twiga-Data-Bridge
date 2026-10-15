@@ -10,12 +10,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   
-  <!-- Tailwind CSS & Client CDNs -->
+  <!-- CDNs: Tailwind CSS, Supabase JS v2, Chart.js -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Tailwind Token Configuration -->
   <script>
     tailwind.config = {
       theme: {
@@ -33,7 +32,6 @@
     }
   </script>
 
-  <!-- Decoupled App Engine (Deferred) -->
   <script src="app.js" defer></script>
 </head>
 <body class="min-h-screen pb-12 pt-safe selection:bg-sea-green selection:text-white">
@@ -59,55 +57,101 @@
     <!-- Error Banner -->
     <div id="errorBanner" class="hidden mt-4 p-4 rounded-xl bg-red-100 border border-red-300 text-charcoal text-xs font-semibold"></div>
 
-    <!-- KPI Metric Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-      
-      <!-- Card 1: Top SKU -->
-      <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5 relative overflow-hidden">
-        <div class="flex justify-between items-start">
-          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Top Volume SKU</span>
-          <span class="gold-badge text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm">Leader</span>
+    <!-- Top Section: TOP VOLUME SKU - Demand Profile Radar Card -->
+    <section class="card-vanilla p-6 sm:p-7 rounded-3xl border border-charcoal/5 mt-6 relative overflow-hidden">
+      <!-- Card Header Context -->
+      <div class="flex justify-between items-start">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-charcoal/70">Top Volume SKU</span>
+            <span class="gold-badge text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow-sm">Leader</span>
+          </div>
+          <h2 id="radarSkuTitle" class="text-2xl sm:text-3xl font-black text-charcoal mt-2 tracking-tight">
+            Loading...
+          </h2>
+          <p class="text-xs font-semibold text-sea-green mt-0.5">Highest checkout demand across trading shifts</p>
         </div>
-        <div id="topProductContainer" class="mt-3">
-          <div id="topProductSkeleton" class="h-7 w-3/4 skeleton rounded"></div>
-          <p id="topProduct" class="hidden text-lg sm:text-xl font-black text-charcoal truncate"></p>
-        </div>
-        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Highest checkout demand</p>
       </div>
 
-      <!-- Card 2: Units Sold -->
+      <!-- Quick Metrics Ribbon (3-Column) -->
+      <div class="grid grid-cols-3 gap-2 sm:gap-4 mt-5 p-3.5 bg-canvas/70 rounded-2xl border border-charcoal/5 text-center">
+        <div>
+          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Dispatched</span>
+          <p id="radarUnits" class="text-lg sm:text-xl font-black text-sea-green mt-0.5">--</p>
+        </div>
+        <div class="border-x border-charcoal/10 px-1">
+          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Volume Share</span>
+          <p id="radarShare" class="text-lg sm:text-xl font-black text-charcoal mt-0.5">--%</p>
+        </div>
+        <div>
+          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Peak Window</span>
+          <p id="radarPeak" class="text-lg sm:text-xl font-black text-gold mt-0.5 truncate">--</p>
+        </div>
+      </div>
+
+      <!-- Main Radar Visualization Container -->
+      <div class="mt-6 pt-5 border-t border-charcoal/10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+          <div>
+            <h3 class="text-sm font-black uppercase tracking-wider text-charcoal">Demand Profile &bull; When It Sells</h3>
+            <p class="text-[11px] text-charcoal/60 font-medium">8-axis checkout frequency distribution</p>
+          </div>
+          <span id="radarFooterBadge" class="text-[10px] font-bold tracking-wider uppercase text-charcoal/70 bg-canvas px-2.5 py-1 rounded-md border border-charcoal/10 w-fit">
+            Synchronizing...
+          </span>
+        </div>
+
+        <div class="relative w-full flex justify-center items-center py-2" style="height: 340px;">
+          <canvas id="demandRadarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Bottom Mini Status Footer -->
+      <div class="mt-4 pt-3 border-t border-charcoal/10 flex items-center justify-between text-[11px] text-charcoal/60">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-willow"></span>
+          <span id="radarShiftLabel">Live POS Data Profile</span>
+        </div>
+        <span class="font-mono text-[10px] text-charcoal/50">Chart.js Engine</span>
+      </div>
+    </section>
+
+    <!-- Mid Section: KPI Overview (Units Dispatched & Gross Revenue) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+      
+      <!-- Units Sold Card -->
       <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
         <div class="flex justify-between items-start">
-          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Units Dispatched</span>
-          <span class="badge-growth text-[10px] font-bold px-2 py-0.5 rounded-full">Daily Agg.</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Total Units Dispatched</span>
+          <span class="badge-growth text-[10px] font-bold px-2 py-0.5 rounded-full">All Catalog</span>
         </div>
-        <div id="unitsContainer" class="mt-3">
+        <div class="mt-3">
           <div id="unitsSkeleton" class="h-7 w-1/2 skeleton rounded"></div>
           <p id="totalUnits" class="hidden text-2xl font-black text-charcoal"></p>
         </div>
-        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Aggregated line items</p>
+        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Aggregated checkout tickets</p>
       </div>
 
-      <!-- Card 3: Total Gross Revenue -->
+      <!-- Gross Revenue Card -->
       <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
         <div class="flex justify-between items-start">
-          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Gross Revenue</span>
+          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Total Gross Revenue</span>
           <span class="bg-sea-green/10 text-sea-green text-[10px] font-extrabold px-2 py-0.5 rounded-full">KES</span>
         </div>
-        <div id="revenueContainer" class="mt-3">
+        <div class="mt-3">
           <div id="revenueSkeleton" class="h-7 w-2/3 skeleton rounded"></div>
           <p id="totalRevenue" class="hidden text-2xl font-black text-sea-green"></p>
         </div>
-        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Cleared register total</p>
+        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Cleared register volume</p>
       </div>
 
     </div>
 
-    <!-- Chart Canvas Card -->
+    <!-- Bottom Section: Full Catalog Revenue Comparison Bar Chart -->
     <div class="card-vanilla p-6 rounded-2xl border border-charcoal/5 mt-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-charcoal/10 gap-2">
         <div>
-          <h2 class="text-sm font-black uppercase tracking-wider text-charcoal">Product Gross Revenue (KES)</h2>
+          <h2 class="text-sm font-black uppercase tracking-wider text-charcoal">Catalog Revenue Comparison (KES)</h2>
           <p class="text-xs text-charcoal/60 font-medium">Distribution by verified inventory SKU</p>
         </div>
         <span id="reportDate" class="text-[11px] font-bold tracking-wider uppercase text-charcoal/70 bg-canvas px-2.5 py-1 rounded-md border border-charcoal/10 w-fit">
@@ -115,7 +159,7 @@
         </span>
       </div>
 
-      <div class="relative w-full mt-4" style="height: 320px;">
+      <div class="relative w-full mt-4" style="height: 300px;">
         <canvas id="salesChart"></canvas>
       </div>
     </div>
