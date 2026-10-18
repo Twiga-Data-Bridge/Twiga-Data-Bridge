@@ -14,16 +14,105 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let salesChartInstance = null;
 let radarChartInstance = null;
 
+// Multi-line labels allow Chart.js to stack text vertically on small screens
 const RADAR_AXIS_LABELS = [
-  'Early Morning (6-8am)',
-  'Morning Rush (8-11am)',
-  'Lunch Break (11am-2pm)',
-  'Afternoon Lull (2-5pm)',
-  'Evening Rush (5-9pm)',
-  'Late Night (9pm-Close)',
-  'Weekend Surge',
-  'Weekday Base'
+  ['Early Morning', '6–8am'],
+  ['Morning Rush', '8–11am'],
+  ['Lunch Break', '11am–2pm'],
+  ['Afternoon Lull', '2–5pm'],
+  ['Evening Rush', '5–9pm'],
+  ['Late Night', '9pm–Close'],
+  ['Weekend', 'Surge'],
+  ['Weekday', 'Base']
 ];
+
+function renderRadarChart(dataPoints) {
+  const canvas = document.getElementById('demandRadarChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (radarChartInstance) radarChartInstance.destroy();
+
+  const isMobile = window.innerWidth < 640;
+
+  radarChartInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: RADAR_AXIS_LABELS,
+      datasets: [{
+        label: 'Checkout Demand Share (%)',
+        data: dataPoints,
+        backgroundColor: 'rgba(34, 141, 87, 0.28)',
+        borderColor: '#228D57',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#D4AF37',
+        pointBorderColor: '#EDE5C8',
+        pointBorderWidth: 2,
+        pointRadius: isMobile ? 3.5 : 4.5,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 10,
+          bottom: 10,
+          left: isMobile ? 22 : 12,
+          right: isMobile ? 22 : 12
+        }
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#3E3E3C',
+          titleColor: '#EDE5C8',
+          bodyColor: '#FFFFFF',
+          padding: 8,
+          cornerRadius: 8,
+          callbacks: {
+            title: (items) => {
+              const label = items[0].label;
+              return Array.isArray(label) ? label.join(' ') : label;
+            },
+            label: (ctx) => ` Demand: ${ctx.raw}% of SKU volume`
+          }
+        }
+      },
+      scales: {
+        r: {
+          angleLines: {
+            color: 'rgba(62, 62, 60, 0.15)',
+            lineWidth: 1
+          },
+          grid: {
+            color: 'rgba(62, 62, 60, 0.12)',
+            lineWidth: 1
+          },
+          pointLabels: {
+            color: '#3E3E3C',
+            centerPointLabels: false,
+            padding: isMobile ? 6 : 8,
+            font: {
+              size: isMobile ? 9 : 10.5,
+              weight: 'bold',
+              lineHeight: 1.15
+            }
+          },
+          ticks: {
+            display: false,
+            backdropColor: 'transparent',
+            stepSize: 20
+          },
+          suggestedMin: 0,
+          suggestedMax: Math.max(...dataPoints, 50) + 10
+        }
+      }
+    }
+  });
+}
+
 
 async function loadDashboard() {
   const errorBanner = document.getElementById('errorBanner');
