@@ -1,4 +1,4 @@
-const CACHE_NAME = 'twiga-bridge-v5.1';
+const CACHE_NAME = 'twiga-bridge-v6.1';
 const ASSETS = [
   './',
   './index.html',
