@@ -34,149 +34,242 @@
 
   <script src="app.js" defer></script>
 </head>
-<body class="min-h-screen pb-12 pt-safe selection:bg-sea-green selection:text-white">
+<body class="min-h-screen pt-safe selection:bg-sea-green selection:text-white">
 
-  <!-- Replace with: -->
-<div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 main-content-layer">
+  <!-- Main Content Stacking Layer -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 main-content-layer">
 
     <!-- Boxed Header Container -->
-<header class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-charcoal/10 gap-4">
-  <!-- Boxed Title Module -->
-  <div class="card-vanilla px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border border-charcoal/10 flex items-center gap-3.5 shadow-sm max-w-fit">
-    <!-- Status Dot Pill -->
-    <div class="w-8 h-8 rounded-xl bg-sea-green/10 flex items-center justify-center shrink-0 border border-sea-green/20">
-      <span class="w-2.5 h-2.5 rounded-full bg-sea-green"></span>
-    </div>
-    <!-- Title & Subtitle -->
-    <div>
-      <h1 class="text-base sm:text-lg font-black tracking-tight text-charcoal uppercase leading-tight">
-        Twiga Data Bridge
-      </h1>
-      <p class="text-[11px] text-charcoal/70 tracking-wide font-semibold mt-0.5">
-        Simba POS Intelligence Console
-      </p>
-    </div>
-  </div>
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-charcoal/10 gap-4">
+      <div class="card-vanilla px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border border-charcoal/10 flex items-center gap-3.5 shadow-sm max-w-fit">
+        <div class="w-8 h-8 rounded-xl bg-sea-green/10 flex items-center justify-center shrink-0 border border-sea-green/20">
+          <span class="w-2.5 h-2.5 rounded-full bg-sea-green"></span>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-charcoal uppercase leading-tight">
+            Twiga Data Bridge
+          </h1>
+          <p class="text-[11px] text-charcoal/70 tracking-wide font-semibold mt-0.5">
+            Simba POS Intelligence Console
+          </p>
+        </div>
+      </div>
 
-  <!-- Cloud Sync Pill -->
-  <div class="flex items-center gap-2 bg-vanilla px-3.5 py-2 rounded-full border border-charcoal/10 shadow-sm self-start sm:self-auto">
-    <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
-    <span class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
-  </div>
-</header>
+      <div class="flex items-center gap-2 bg-vanilla px-3.5 py-2 rounded-full border border-charcoal/10 shadow-sm self-start sm:self-auto">
+        <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
+        <span class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
+      </div>
+    </header>
 
     <!-- Error Banner -->
     <div id="errorBanner" class="hidden mt-4 p-4 rounded-xl bg-red-100 border border-red-300 text-charcoal text-xs font-semibold"></div>
 
-    <!-- Top Section: TOP VOLUME SKU - Demand Profile Radar Card -->
-    <section class="card-vanilla p-6 sm:p-7 rounded-3xl border border-charcoal/5 mt-6 relative overflow-hidden">
-      <!-- Card Header Context -->
-      <div class="flex justify-between items-start">
-        <div>
-          <div class="flex items-center gap-2">
-            <span class="text-xs font-extrabold uppercase tracking-wider text-charcoal/70">Top Volume SKU</span>
-            <span class="gold-badge text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow-sm">Leader</span>
-          </div>
-          <h2 id="radarSkuTitle" class="text-2xl sm:text-3xl font-black text-charcoal mt-2 tracking-tight">
-            Loading...
-          </h2>
-          <p class="text-xs font-semibold text-sea-green mt-0.5">Highest checkout demand across trading shifts</p>
-        </div>
-      </div>
-
-      <!-- Quick Metrics Ribbon (3-Column) -->
-      <div class="grid grid-cols-3 gap-2 sm:gap-4 mt-5 p-3.5 bg-canvas/70 rounded-2xl border border-charcoal/5 text-center">
-        <div>
-          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Dispatched</span>
-          <p id="radarUnits" class="text-lg sm:text-xl font-black text-sea-green mt-0.5">--</p>
-        </div>
-        <div class="border-x border-charcoal/10 px-1">
-          <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Volume Share</span>
-          <p id="radarShare" class="text-lg sm:text-xl font-black text-charcoal mt-0.5">--%</p>
-        </div>
-        <!-- Replace the Peak Window block in index.html -->
-<div>
-  <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Peak Window</span>
-  <p id="radarPeak" class="text-sm sm:text-lg font-black text-gold mt-0.5 leading-tight">--</p>
-</div>
-
-      </div>
-
-      <!-- Main Radar Visualization Container -->
-      <div class="mt-6 pt-5 border-t border-charcoal/10">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+    <!-- ========================================== -->
+    <!-- VIEW PANEL 1: OVERVIEW                     -->
+    <!-- ========================================== -->
+    <main id="panel-overview" class="space-y-6 mt-6">
+      
+      <!-- TOP VOLUME SKU: Demand Profile Radar Card -->
+      <section class="card-vanilla p-6 sm:p-7 rounded-3xl border border-charcoal/5 relative overflow-hidden">
+        <div class="flex justify-between items-start">
           <div>
-            <h3 class="text-sm font-black uppercase tracking-wider text-charcoal">Demand Profile &bull; When It Sells</h3>
-            <p class="text-[11px] text-charcoal/60 font-medium">8-axis checkout frequency distribution</p>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-charcoal/70">Top Volume SKU</span>
+              <span class="gold-badge text-[10px] font-black uppercase px-2.5 py-0.5 rounded shadow-sm">Leader</span>
+            </div>
+            <h2 id="radarSkuTitle" class="text-2xl sm:text-3xl font-black text-charcoal mt-2 tracking-tight">
+              Loading...
+            </h2>
+            <p class="text-xs font-semibold text-sea-green mt-0.5">Highest checkout demand across trading shifts</p>
           </div>
-          <span id="radarFooterBadge" class="text-[10px] font-bold tracking-wider uppercase text-charcoal/70 bg-canvas px-2.5 py-1 rounded-md border border-charcoal/10 w-fit">
+        </div>
+
+        <!-- 3-Column Metrics Ribbon -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-4 mt-5 p-3.5 bg-canvas/70 rounded-2xl border border-charcoal/5 text-center">
+          <div>
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Dispatched</span>
+            <p id="radarUnits" class="text-lg sm:text-xl font-black text-sea-green mt-0.5">--</p>
+          </div>
+          <div class="border-x border-charcoal/10 px-1">
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Volume Share</span>
+            <p id="radarShare" class="text-lg sm:text-xl font-black text-charcoal mt-0.5">--%</p>
+          </div>
+          <div>
+            <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-charcoal/60">Peak Window</span>
+            <p id="radarPeak" class="text-sm sm:text-lg font-black text-gold mt-0.5 leading-tight">--</p>
+          </div>
+        </div>
+
+        <!-- 8-Axis Radar Canvas Container -->
+        <div class="mt-6 pt-5 border-t border-charcoal/10">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2">
+            <div>
+              <h3 class="text-sm font-black uppercase tracking-wider text-charcoal">Demand Profile &bull; When It Sells</h3>
+              <p class="text-[11px] text-charcoal/60 font-medium">8-axis checkout frequency distribution</p>
+            </div>
+            <span id="radarFooterBadge" class="text-[10px] font-bold tracking-wider uppercase text-charcoal/70 bg-canvas px-2.5 py-1 rounded-md border border-charcoal/10 w-fit">
+              Synchronizing...
+            </span>
+          </div>
+
+          <div class="relative w-full flex justify-center items-center py-2 px-1 sm:px-2" style="height: 350px;">
+            <canvas id="demandRadarChart"></canvas>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-charcoal/10 flex items-center justify-between text-[11px] text-charcoal/60">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-willow"></span>
+            <span id="radarShiftLabel">Live POS Data Profile</span>
+          </div>
+          <span class="font-mono text-[10px] text-charcoal/50">Simba POS Direct</span>
+        </div>
+      </section>
+
+      <!-- Quick KPI Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Total Units Dispatched</span>
+            <span class="badge-growth text-[10px] font-bold px-2 py-0.5 rounded-full">All Catalog</span>
+          </div>
+          <div class="mt-3">
+            <div id="unitsSkeleton" class="h-7 w-1/2 skeleton rounded"></div>
+            <p id="totalUnits" class="hidden text-2xl font-black text-charcoal"></p>
+          </div>
+          <p class="text-[11px] font-medium text-charcoal/60 mt-2">Aggregated checkout tickets</p>
+        </div>
+
+        <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Total Gross Revenue</span>
+            <span class="bg-sea-green/10 text-sea-green text-[10px] font-extrabold px-2 py-0.5 rounded-full">KES</span>
+          </div>
+          <div class="mt-3">
+            <div id="revenueSkeleton" class="h-7 w-2/3 skeleton rounded"></div>
+            <p id="totalRevenue" class="hidden text-2xl font-black text-sea-green"></p>
+          </div>
+          <p class="text-[11px] font-medium text-charcoal/60 mt-2">Cleared register volume</p>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- VIEW PANEL 2: CATALOG                      -->
+    <!-- ========================================== -->
+    <section id="panel-catalog" class="hidden space-y-6 mt-6">
+      
+      <!-- Catalog Revenue Comparison Bar Chart -->
+      <div class="card-vanilla p-6 rounded-3xl border border-charcoal/5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-charcoal/10 gap-2">
+          <div>
+            <h2 class="text-sm font-black uppercase tracking-wider text-charcoal">Catalog Revenue Comparison (KES)</h2>
+            <p class="text-xs text-charcoal/60 font-medium">Ranked by volume performance</p>
+          </div>
+          <span id="reportDate" class="text-[11px] font-bold tracking-wider uppercase text-charcoal/70 bg-canvas px-2.5 py-1 rounded-md border border-charcoal/10 w-fit">
             Synchronizing...
           </span>
         </div>
 
-        <div class="relative w-full flex justify-center items-center py-2 px-1 sm:px-2" style="height: 350px;">
-  <canvas id="demandRadarChart"></canvas>
-</div>
-
-      </div>
-
-      <!-- Bottom Mini Status Footer -->
-      <div class="mt-4 pt-3 border-t border-charcoal/10 flex items-center justify-between text-[11px] text-charcoal/60">
-        <div class="flex items-center gap-2">
-          <span class="w-2 h-2 rounded-full bg-willow"></span>
-          <span id="radarShiftLabel">Live POS Data Profile</span>
+        <div class="relative w-full mt-4" style="height: 320px;">
+          <canvas id="salesChart"></canvas>
         </div>
-        <span class="font-mono text-[10px] text-charcoal/50">Chart.js Engine</span>
       </div>
+
+      <!-- Itemized Performance Table -->
+      <div class="card-vanilla p-6 rounded-3xl border border-charcoal/5">
+        <h3 class="text-sm font-black uppercase tracking-wider text-charcoal mb-4">SKU Inventory Ledger</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead>
+              <tr class="border-b border-charcoal/10 text-charcoal/60 uppercase tracking-wider">
+                <th class="pb-3 font-bold">Product</th>
+                <th class="pb-3 font-bold text-center">SKU</th>
+                <th class="pb-3 font-bold text-right">Units</th>
+                <th class="pb-3 font-bold text-right">Gross (KES)</th>
+              </tr>
+            </thead>
+            <tbody id="catalogTableBody" class="divide-y divide-charcoal/5 font-medium">
+              <!-- Dynamically populated in app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </section>
 
-    <!-- Mid Section: KPI Overview (Units Dispatched & Gross Revenue) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+    <!-- ========================================== -->
+    <!-- VIEW PANEL 3: OPERATIONS & CASHIERS        -->
+    <!-- ========================================== -->
+    <section id="panel-operations" class="hidden space-y-6 mt-6">
       
-      <!-- Units Sold Card -->
-      <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
-        <div class="flex justify-between items-start">
-          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Total Units Dispatched</span>
-          <span class="badge-growth text-[10px] font-bold px-2 py-0.5 rounded-full">All Catalog</span>
+      <!-- Shift Operations Status Card -->
+      <div class="card-vanilla p-6 rounded-3xl border border-charcoal/5">
+        <div class="flex justify-between items-center pb-4 border-b border-charcoal/10">
+          <div>
+            <h2 class="text-sm font-black uppercase tracking-wider text-charcoal">Cashier Shift Performance</h2>
+            <p class="text-xs text-charcoal/60 font-medium">Terminal reconciliation and throughput</p>
+          </div>
+          <span class="gold-badge text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm">Audit Active</span>
         </div>
-        <div class="mt-3">
-          <div id="unitsSkeleton" class="h-7 w-1/2 skeleton rounded"></div>
-          <p id="totalUnits" class="hidden text-2xl font-black text-charcoal"></p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
+          <div class="p-4 bg-canvas/70 rounded-2xl border border-charcoal/5">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-charcoal">Shift Leader: Mary</span>
+              <span class="badge-growth text-[10px] font-bold px-2 py-0.5 rounded-full">Top Speed</span>
+            </div>
+            <p class="text-lg font-black text-sea-green mt-2">KSh 18,220.00</p>
+            <p class="text-[11px] text-charcoal/60 mt-1">42 Tickets &bull; Zero Reversals</p>
+          </div>
+
+          <div class="p-4 bg-canvas/70 rounded-2xl border border-charcoal/5">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-bold text-charcoal">Cashier: John</span>
+              <span class="bg-charcoal/10 text-charcoal text-[10px] font-bold px-2 py-0.5 rounded-full">Active</span>
+            </div>
+            <p class="text-lg font-black text-charcoal mt-2">KSh 14,010.00</p>
+            <p class="text-[11px] text-charcoal/60 mt-1">31 Tickets &bull; M-Pesa Heavy</p>
+          </div>
         </div>
-        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Aggregated checkout tickets</p>
       </div>
 
-      <!-- Gross Revenue Card -->
-      <div class="card-vanilla p-5 rounded-2xl border border-charcoal/5">
-        <div class="flex justify-between items-start">
-          <span class="text-xs font-bold uppercase tracking-wider text-charcoal/70">Total Gross Revenue</span>
-          <span class="bg-sea-green/10 text-sea-green text-[10px] font-extrabold px-2 py-0.5 rounded-full">KES</span>
+      <!-- Settlement Channels Breakdown -->
+      <div class="card-vanilla p-6 rounded-3xl border border-charcoal/5">
+        <h3 class="text-sm font-black uppercase tracking-wider text-charcoal mb-3">Settlement Channels</h3>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-charcoal">M-Pesa Express</span>
+              <span class="text-sea-green">68%</span>
+            </div>
+            <div class="w-full bg-charcoal/10 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-sea-green h-full rounded-full" style="width: 68%;"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-charcoal">Cash Drawer</span>
+              <span class="text-charcoal">24%</span>
+            </div>
+            <div class="w-full bg-charcoal/10 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-charcoal h-full rounded-full" style="width: 24%;"></div>
+            </div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs font-bold mb-1">
+              <span class="text-charcoal">Card / POS Terminal</span>
+              <span class="text-gold">8%</span>
+            </div>
+            <div class="w-full bg-charcoal/10 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-gold h-full rounded-full" style="width: 8%;"></div>
+            </div>
+          </div>
         </div>
-        <div class="mt-3">
-          <div id="revenueSkeleton" class="h-7 w-2/3 skeleton rounded"></div>
-          <p id="totalRevenue" class="hidden text-2xl font-black text-sea-green"></p>
-        </div>
-        <p class="text-[11px] font-medium text-charcoal/60 mt-2">Cleared register volume</p>
       </div>
 
-    </div>
-
-    <!-- Bottom Section: Full Catalog Revenue Comparison Bar Chart -->
-    <div class="card-vanilla p-6 rounded-2xl border border-charcoal/5 mt-6">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-charcoal/10 gap-2">
-        <div>
-          <h2 class="text-sm font-black uppercase tracking-wider text-charcoal">Catalog Revenue Comparison (KES)</h2>
-          <p class="text-xs text-charcoal/60 font-medium">Distribution by verified inventory SKU</p>
-        </div>
-        <span id="reportDate" class="text-[11px] font-bold tracking-wider uppercase text-charcoal/70 bg-canvas px-2.5 py-1 rounded-md border border-charcoal/10 w-fit">
-          Synchronizing...
-        </span>
-      </div>
-
-      <div class="relative w-full mt-4" style="height: 300px;">
-        <canvas id="salesChart"></canvas>
-      </div>
-    </div>
+    </section>
 
     <!-- Footer Meta -->
     <footer class="mt-8 text-center text-xs text-charcoal/50 font-medium pb-4">
@@ -184,6 +277,39 @@
     </footer>
 
   </div>
+
+  <!-- ======================================================== -->
+  <!-- OPTION 1: PINTEREST-STYLE FLOATING CAPSULE NAVIGATION    -->
+  <!-- ======================================================== -->
+  <nav class="fixed bottom-5 left-0 right-0 z-50 flex justify-center px-4 pointer-events-none pb-safe">
+    <div class="pointer-events-auto floating-dock bg-[#EDE5C8]/95 backdrop-blur-xl border border-[#3E3E3C]/10 rounded-full p-1.5 shadow-2xl flex items-center gap-1">
+      
+      <!-- Tab 1: Overview -->
+      <button onclick="switchTab('overview')" id="btn-tab-overview" class="nav-tab active flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-extrabold transition-all duration-300">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        <span>Overview</span>
+      </button>
+
+      <!-- Tab 2: Catalog -->
+      <button onclick="switchTab('catalog')" id="btn-tab-catalog" class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-extrabold transition-all duration-300 text-[#3E3E3C]/70 hover:text-[#3E3E3C]">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <span>Catalog</span>
+      </button>
+
+      <!-- Tab 3: Operations -->
+      <button onclick="switchTab('operations')" id="btn-tab-operations" class="nav-tab flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-extrabold transition-all duration-300 text-[#3E3E3C]/70 hover:text-[#3E3E3C]">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        <span>Shifts</span>
+      </button>
+
+    </div>
+  </nav>
 
 </body>
 </html>
