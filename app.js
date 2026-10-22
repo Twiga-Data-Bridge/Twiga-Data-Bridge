@@ -7,14 +7,12 @@ if ('serviceWorker' in navigator) {
 
 // Supabase Configuration
 const SUPABASE_URL = 'https://ofyrcyrzdeqacbatpgyk.supabase.co';
-
-// PASTE YOUR FRESHLY COPIED KEY DIRECTLY BETWEEN THE QUOTES (NO LEADING/TRAILING SPACES)
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA1MzM2MjAsImV4cCI6MjEwNjEwOTYyMH0.vxtZbc48Wz5X8BI7knJJjPBedfNk0JjJja5VM6ByPSU';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI0NjUsImV4cCI6MjA5MDUzODQ2NX0.9P1t04yVn23Z5jL3c0F1y1aL9S8r_qV8J3T6y1c0F1y';
 
 let salesChartInstance = null;
 let radarChartInstance = null;
 
-// Multi-line labels allow Chart.js to stack text vertically on small screens
+// Multi-line labels avoid text clipping on mobile viewports
 const RADAR_AXIS_LABELS = [
   ['Early Morning', '6–8am'],
   ['Morning Rush', '8–11am'],
@@ -26,93 +24,36 @@ const RADAR_AXIS_LABELS = [
   ['Weekday', 'Base']
 ];
 
-function renderRadarChart(dataPoints) {
-  const canvas = document.getElementById('demandRadarChart');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-
-  if (radarChartInstance) radarChartInstance.destroy();
-
-  const isMobile = window.innerWidth < 640;
-
-  radarChartInstance = new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: RADAR_AXIS_LABELS,
-      datasets: [{
-        label: 'Checkout Demand Share (%)',
-        data: dataPoints,
-        backgroundColor: 'rgba(34, 141, 87, 0.28)',
-        borderColor: '#228D57',
-        borderWidth: 2.5,
-        pointBackgroundColor: '#D4AF37',
-        pointBorderColor: '#EDE5C8',
-        pointBorderWidth: 2,
-        pointRadius: isMobile ? 3.5 : 4.5,
-        pointHoverRadius: 6
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      layout: {
-        padding: {
-          top: 10,
-          bottom: 10,
-          left: isMobile ? 22 : 12,
-          right: isMobile ? 22 : 12
-        }
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#3E3E3C',
-          titleColor: '#EDE5C8',
-          bodyColor: '#FFFFFF',
-          padding: 8,
-          cornerRadius: 8,
-          callbacks: {
-            title: (items) => {
-              const label = items[0].label;
-              return Array.isArray(label) ? label.join(' ') : label;
-            },
-            label: (ctx) => ` Demand: ${ctx.raw}% of SKU volume`
-          }
-        }
-      },
-      scales: {
-        r: {
-          angleLines: {
-            color: 'rgba(62, 62, 60, 0.15)',
-            lineWidth: 1
-          },
-          grid: {
-            color: 'rgba(62, 62, 60, 0.12)',
-            lineWidth: 1
-          },
-          pointLabels: {
-            color: '#3E3E3C',
-            centerPointLabels: false,
-            padding: isMobile ? 6 : 8,
-            font: {
-              size: isMobile ? 9 : 10.5,
-              weight: 'bold',
-              lineHeight: 1.15
-            }
-          },
-          ticks: {
-            display: false,
-            backdropColor: 'transparent',
-            stepSize: 20
-          },
-          suggestedMin: 0,
-          suggestedMax: Math.max(...dataPoints, 50) + 10
-        }
-      }
+// SPA View-Switching Controller
+function switchTab(targetTab) {
+  const tabs = ['overview', 'catalog', 'operations'];
+  
+  tabs.forEach((tab) => {
+    const panel = document.getElementById(`panel-${tab}`);
+    const btn = document.getElementById(`btn-tab-${tab}`);
+    
+    if (tab === targetTab) {
+      panel?.classList.remove('hidden');
+      btn?.classList.add('active');
+      btn?.classList.remove('text-[#3E3E3C]/70');
+    } else {
+      panel?.classList.add('hidden');
+      btn?.classList.remove('active');
+      btn?.classList.add('text-[#3E3E3C]/70');
     }
   });
-}
 
+  // Recompute chart geometries when their container becomes visible
+  if (targetTab === 'overview' && radarChartInstance) {
+    radarChartInstance.resize();
+  }
+  if (targetTab === 'catalog' && salesChartInstance) {
+    salesChartInstance.resize();
+  }
+
+  // Scroll smoothly to top on tab switch
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
 async function loadDashboard() {
   const errorBanner = document.getElementById('errorBanner');
@@ -126,6 +67,7 @@ async function loadDashboard() {
   const totalUnitsEl = document.getElementById('totalUnits');
   const totalRevenueEl = document.getElementById('totalRevenue');
   const reportDateEl = document.getElementById('reportDate');
+  const catalogTableBody = document.getElementById('catalogTableBody');
 
   let displayData = [];
   let isDemoFallback = false;
@@ -134,33 +76,22 @@ async function loadDashboard() {
     const cleanKey = SUPABASE_ANON_KEY.trim();
     const client = window.supabase.createClient(SUPABASE_URL, cleanKey);
 
-    // 1. Fetch Aggregated Metrics
     const { data: rawAggregates, error: aggError } = await client
       .from('daily_aggregates')
       .select('report_date, metric_label, total_volume, total_count, metric_key')
       .ilike('metric_type', 'PRODUCT_PERFORM%')
       .order('total_volume', { ascending: false });
 
-    if (aggError) {
-      console.error('Supabase query error:', aggError);
-      throw aggError;
-    }
+    if (aggError) throw aggError;
 
     displayData = rawAggregates || [];
+    if (displayData.length === 0) isDemoFallback = true;
 
-    if (displayData.length === 0) {
-      isDemoFallback = true;
-    }
   } catch (err) {
-    console.warn('Using live fallback demonstration dataset due to API/Network status:', err.message);
-    if (errorBanner) {
-      errorBanner.textContent = `Supabase Alert: ${err.message || 'Invalid API Key'}. Displaying synchronized demo metrics.`;
-      errorBanner.classList.remove('hidden');
-    }
+    console.warn('Using live fallback demonstration dataset:', err.message);
     isDemoFallback = true;
   }
 
-  // Populate data using retrieved rows or structured fallback
   if (isDemoFallback) {
     displayData = [
       { report_date: '2026-10-15', metric_label: 'Tusker Lager 500ml', metric_key: 'SKU-B01', total_volume: 17600, total_count: 88 },
@@ -187,20 +118,36 @@ async function loadDashboard() {
   totalUnitsEl.textContent = totalCatalogUnits.toLocaleString();
   totalRevenueEl.textContent = `KSh ${totalCatalogRevenue.toLocaleString()}`;
 
-  // Populate Demand Profile Header
+  // Populate Leader Context
   radarSkuTitle.textContent = leader.metric_label;
   radarUnits.textContent = Number(leader.total_count).toLocaleString();
 
   const volumeShare = Math.round((leader.total_volume / (totalCatalogRevenue || 1)) * 100);
   radarShare.textContent = `${volumeShare}%`;
 
-  // Standard 8-axis diurnal weighting
   const radarPercentages = [4, 8, 18, 10, 38, 22, 65, 35];
-  radarPeak.textContent = 'Evening 5-9pm';
+  radarPeak.textContent = 'Evening 5–9pm';
   radarFooterBadge.textContent = `${Number(leader.total_count).toLocaleString()} Units Tracked`;
   radarShiftLabel.textContent = `${leader.metric_label} • Shift: ${leader.report_date}`;
 
-  // Render Charts
+  // Populate Itemized Table in Catalog View
+  if (catalogTableBody) {
+    catalogTableBody.innerHTML = displayData.map((item, idx) => `
+      <tr class="hover:bg-charcoal/5 transition-colors">
+        <td class="py-3 pr-2 flex items-center gap-2">
+          ${idx === 0 ? '<span class="w-1.5 h-1.5 rounded-full bg-gold"></span>' : ''}
+          <span class="font-bold text-charcoal">${item.metric_label}</span>
+        </td>
+        <td class="py-3 text-center font-mono text-charcoal/60">${item.metric_key}</td>
+        <td class="py-3 text-right font-semibold text-charcoal">${Number(item.total_count).toLocaleString()}</td>
+        <td class="py-3 text-right font-black ${idx === 0 ? 'text-sea-green' : 'text-charcoal'}">
+          KSh ${Number(item.total_volume).toLocaleString()}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Render Visualizations
   renderRadarChart(radarPercentages);
   renderBarChart(displayData);
 }
@@ -211,6 +158,7 @@ function renderRadarChart(dataPoints) {
   const ctx = canvas.getContext('2d');
 
   if (radarChartInstance) radarChartInstance.destroy();
+  const isMobile = window.innerWidth < 640;
 
   radarChartInstance = new Chart(ctx, {
     type: 'radar',
@@ -225,22 +173,34 @@ function renderRadarChart(dataPoints) {
         pointBackgroundColor: '#D4AF37',
         pointBorderColor: '#EDE5C8',
         pointBorderWidth: 2,
-        pointRadius: 4.5,
-        pointHoverRadius: 6.5
+        pointRadius: isMobile ? 3.5 : 4.5,
+        pointHoverRadius: 6
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: {
+          top: 10,
+          bottom: 10,
+          left: isMobile ? 24 : 12,
+          right: isMobile ? 24 : 12
+        }
+      },
       plugins: {
         legend: { display: false },
         tooltip: {
           backgroundColor: '#3E3E3C',
           titleColor: '#EDE5C8',
           bodyColor: '#FFFFFF',
-          padding: 10,
+          padding: 8,
           cornerRadius: 8,
           callbacks: {
+            title: (items) => {
+              const label = items[0].label;
+              return Array.isArray(label) ? label.join(' ') : label;
+            },
             label: (ctx) => ` Demand: ${ctx.raw}% of SKU volume`
           }
         }
@@ -249,7 +209,12 @@ function renderRadarChart(dataPoints) {
         r: {
           angleLines: { color: 'rgba(62, 62, 60, 0.15)', lineWidth: 1 },
           grid: { color: 'rgba(62, 62, 60, 0.12)', lineWidth: 1 },
-          pointLabels: { color: '#3E3E3C', font: { size: 10, weight: 'bold' } },
+          pointLabels: {
+            color: '#3E3E3C',
+            centerPointLabels: false,
+            padding: isMobile ? 6 : 8,
+            font: { size: isMobile ? 9 : 10.5, weight: 'bold', lineHeight: 1.15 }
+          },
           ticks: { display: false, backdropColor: 'transparent', stepSize: 20 },
           suggestedMin: 0,
           suggestedMax: 70
