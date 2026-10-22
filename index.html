@@ -39,21 +39,31 @@
   <!-- Replace with: -->
 <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 main-content-layer">
 
-    <!-- Top Navigation / App Header -->
-    <header class="flex items-center justify-between pb-6 border-b border-charcoal/10">
-      <div>
-        <div class="flex items-center gap-2">
-          <span class="inline-block w-2.5 h-2.5 rounded-full bg-sea-green"></span>
-          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-charcoal uppercase">Twiga Data Bridge</h1>
-        </div>
-        <p class="text-xs text-charcoal/70 tracking-wide font-medium mt-0.5">Simba POS Intelligence Console</p>
-      </div>
+    <!-- Boxed Header Container -->
+<header class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-charcoal/10 gap-4">
+  <!-- Boxed Title Module -->
+  <div class="card-vanilla px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border border-charcoal/10 flex items-center gap-3.5 shadow-sm max-w-fit">
+    <!-- Status Dot Pill -->
+    <div class="w-8 h-8 rounded-xl bg-sea-green/10 flex items-center justify-center shrink-0 border border-sea-green/20">
+      <span class="w-2.5 h-2.5 rounded-full bg-sea-green"></span>
+    </div>
+    <!-- Title & Subtitle -->
+    <div>
+      <h1 class="text-base sm:text-lg font-black tracking-tight text-charcoal uppercase leading-tight">
+        Twiga Data Bridge
+      </h1>
+      <p class="text-[11px] text-charcoal/70 tracking-wide font-semibold mt-0.5">
+        Simba POS Intelligence Console
+      </p>
+    </div>
+  </div>
 
-      <div class="flex items-center gap-2 bg-vanilla px-3 py-1.5 rounded-full border border-charcoal/10 shadow-sm">
-        <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
-        <span class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
-      </div>
-    </header>
+  <!-- Cloud Sync Pill -->
+  <div class="flex items-center gap-2 bg-vanilla px-3.5 py-2 rounded-full border border-charcoal/10 shadow-sm self-start sm:self-auto">
+    <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
+    <span class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
+  </div>
+</header>
 
     <!-- Error Banner -->
     <div id="errorBanner" class="hidden mt-4 p-4 rounded-xl bg-red-100 border border-red-300 text-charcoal text-xs font-semibold"></div>
