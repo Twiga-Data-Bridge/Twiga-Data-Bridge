@@ -280,4 +280,10 @@ function renderBarChart(catalog) {
   });
 }
 
+window.addEventListener('online', () => {
+  document.getElementById('syncBadge').textContent = 'Cloud Sync';
+});
+window.addEventListener('offline', () => {
+  document.getElementById('syncBadge').textContent = 'Offline Mode';
+});
 window.addEventListener('DOMContentLoaded', loadDashboard);
