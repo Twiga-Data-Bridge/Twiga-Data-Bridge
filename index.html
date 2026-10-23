@@ -290,14 +290,26 @@
 
   </div>
 
-<!-- ======================================================== -->
-  <!-- CONTEXTUAL HORIZONTAL CAROUSEL DRAWER (TWIGA MSAIDIZI)   -->
   <!-- ======================================================== -->
+  <!-- TWIGA MSAIDIZI (FLOATING TRIGGER & HORIZONTAL CAROUSEL)   -->
+  <!-- ======================================================== -->
+
+  <!-- Floating Assistant Pill Trigger (Anchored Above Bottom Dock) -->
+  <aside class="fixed bottom-24 right-4 sm:right-8 z-40">
+    <button onclick="toggleHelperDrawer()" id="msaidiziFab" class="card-vanilla px-3.5 py-2.5 rounded-full border border-charcoal/15 shadow-xl flex items-center gap-2.5 group hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer">
+      <span class="relative flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-willow opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-sea-green"></span>
+      </span>
+      <span class="text-xs font-black uppercase tracking-wider text-charcoal">Twiga Msaidizi</span>
+      <span class="gold-badge text-[9px] font-black uppercase px-1.5 py-0.5 rounded">Guide</span>
+    </button>
+  </aside>
 
   <!-- Drawer Modal Backdrop -->
   <div id="drawerBackdrop" onclick="toggleHelperDrawer()" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
 
-  <!-- Slide-Up Carousel Sheet -->
+  <!-- Slide-Up Contextual Carousel Sheet -->
   <section id="helperDrawer" class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-[#EDE5C8] rounded-t-3xl border-t border-x border-charcoal/15 shadow-2xl transform translate-y-full transition-transform duration-300 ease-out flex flex-col">
     
     <!-- Drawer Header -->
@@ -315,7 +327,7 @@
       </div>
       
       <!-- Close Button -->
-      <button onclick="toggleHelperDrawer()" class="p-1.5 rounded-full hover:bg-charcoal/10 text-charcoal/60 hover:text-charcoal transition-colors">
+      <button onclick="toggleHelperDrawer()" class="p-1.5 rounded-full hover:bg-charcoal/10 text-charcoal/60 hover:text-charcoal transition-colors cursor-pointer">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
         </svg>
@@ -325,7 +337,7 @@
     <!-- Active Single-Slide Viewport -->
     <div class="p-5">
       <article id="carouselSlideCard" class="p-5 rounded-2xl bg-canvas border border-charcoal/10 shadow-sm min-h-[220px] flex flex-col justify-between">
-        <!-- Content populated dynamically via app.js -->
+        <!-- Injected via app.js -->
       </article>
 
       <!-- Carousel Navigation Controls -->
@@ -335,12 +347,12 @@
           <!-- Dots rendered dynamically -->
         </div>
 
-        <!-- Arrow Controls -->
+        <!-- Prev / Next Controls -->
         <div class="flex items-center gap-2">
-          <button onclick="prevSlide()" id="btnPrevSlide" class="px-3 py-1.5 rounded-xl border border-charcoal/20 bg-canvas text-charcoal text-xs font-bold hover:bg-vanilla disabled:opacity-30 disabled:pointer-events-none transition-colors">
+          <button onclick="prevSlide()" id="btnPrevSlide" class="px-3 py-1.5 rounded-xl border border-charcoal/20 bg-canvas text-charcoal text-xs font-bold hover:bg-vanilla disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer">
             &larr; Prev
           </button>
-          <button onclick="nextSlide()" id="btnNextSlide" class="px-4 py-1.5 rounded-xl bg-sea-green text-white text-xs font-bold hover:bg-sea-green/90 disabled:opacity-30 disabled:pointer-events-none shadow-sm transition-colors">
+          <button onclick="nextSlide()" id="btnNextSlide" class="px-4 py-1.5 rounded-xl bg-sea-green text-white text-xs font-bold hover:bg-sea-green/90 disabled:opacity-30 disabled:pointer-events-none shadow-sm transition-colors cursor-pointer">
             Next &rarr;
           </button>
         </div>
@@ -356,7 +368,7 @@
   </section>
 
   <!-- ======================================================== -->
-  <!-- FLOATING CAPSULE NAVIGATION (PINTEREST STYLE)            -->
+  <!-- OPTION 1: PINTEREST-STYLE FLOATING CAPSULE NAVIGATION    -->
   <!-- ======================================================== -->
   <nav class="fixed bottom-5 left-0 right-0 z-40 flex justify-center px-4 pointer-events-none pb-safe">
     <div class="pointer-events-auto floating-dock bg-[#EDE5C8]/95 backdrop-blur-xl border border-[#3E3E3C]/10 rounded-full p-1.5 shadow-2xl flex items-center gap-1">
