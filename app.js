@@ -331,3 +331,170 @@ function renderBarChart(catalog) {
 }
 
 window.addEventListener('DOMContentLoaded', loadDashboard);
+
+// Current View & Carousel State
+let currentTabState = 'overview';
+let currentSlideIndex = 0;
+
+// Contextual Insight Definitions
+function getContextSlides() {
+  const leaderName = document.getElementById('radarSkuTitle')?.textContent || 'Sales Leader';
+  const leaderUnits = document.getElementById('radarUnits')?.textContent || '--';
+  const leaderShare = document.getElementById('radarShare')?.textContent || '--%';
+  const leaderPeak = document.getElementById('radarPeak')?.textContent || 'Evening';
+  const totalUnits = document.getElementById('totalUnits')?.textContent || '--';
+  const totalRev = document.getElementById('totalRevenue')?.textContent || 'KSh --';
+
+  const slideDeck = {
+    overview: [
+      {
+        badge: 'Leader & Peak Demand',
+        badgeClass: 'gold-badge',
+        title: `${leaderName} (${leaderShare} Volume)`,
+        desc: `This product is your primary revenue generator, peaking during ${leaderPeak}. Stock depletion during this trading window causes immediate profit loss.`,
+        action: `Front-face at least 30 units of ${leaderName} and verify cold-shelf readiness 30 minutes before ${leaderPeak}.`
+      },
+      {
+        badge: 'Volume Throughput',
+        badgeClass: 'badge-growth',
+        title: `${totalUnits} Total Units Dispatched`,
+        desc: `Reflects physical checkout item count across all shelves today. A surge in units without matching revenue growth signals heavier low-margin product sales.`,
+        action: `Review cashier scanning pace and prepare replenishments for secondary basket items during off-peak trade.`
+      },
+      {
+        badge: 'Total Revenue',
+        badgeClass: 'bg-sea-green/15 text-sea-green',
+        title: `${totalRev} Cleared Volume`,
+        desc: `Gross cumulative receipts settled via cash, M-Pesa, and card. Represents your net store inflow before supplier settlements.`,
+        action: `Verify physical cash in drawer matches register receipts before releasing shift cashiers.`
+      }
+    ],
+    catalog: [
+      {
+        badge: 'Revenue Distribution',
+        badgeClass: 'gold-badge',
+        title: 'Catalog Revenue Comparison',
+        desc: `Compares gross turnover across inventory lines. Taller bars indicate high-velocity capital turnover items; shorter bars indicate slower-moving lines.`,
+        action: `Allocate prime shelf eye-level space to your top 2 revenue-earning SKUs to accelerate fast turnarounds.`
+      },
+      {
+        badge: 'Inventory Audit',
+        badgeClass: 'badge-growth',
+        title: 'SKU Inventory Ledger',
+        desc: `Itemizes every unit sold against exact gross yield. Shows which individual products justify their supplier order cadence.`,
+        action: `Flag items where units sold remain low over 3 consecutive shifts to reduce stagnant stock tie-up.`
+      }
+    ],
+    operations: [
+      {
+        badge: 'Cashier Audit',
+        badgeClass: 'gold-badge',
+        title: 'Shift Performance Tracking',
+        desc: `Monitors register throughput and transaction volumes per cashier to maintain accountability and prevent drawer discrepancies.`,
+        action: `Reconcile total tickets against drawer settlement before changing cashier logins.`
+      }
+    ]
+  };
+
+  return slideDeck[currentTabState] || slideDeck.overview;
+}
+
+// Update switchTab to set tab context
+const originalSwitchTab = switchTab;
+switchTab = function(targetTab) {
+  currentTabState = targetTab;
+  currentSlideIndex = 0; // Reset slide index on view navigation
+  if (typeof originalSwitchTab === 'function') {
+    originalSwitchTab(targetTab);
+  }
+};
+
+// Open/Close Drawer with Context Render
+function toggleHelperDrawer() {
+  const drawer = document.getElementById('helperDrawer');
+  const backdrop = document.getElementById('drawerBackdrop');
+  if (!drawer || !backdrop) return;
+
+  const isOpen = drawer.classList.contains('open');
+  if (isOpen) {
+    drawer.classList.remove('open');
+    backdrop.classList.remove('opacity-100');
+    backdrop.classList.add('opacity-0');
+    setTimeout(() => backdrop.classList.add('hidden'), 300);
+  } else {
+    currentSlideIndex = 0;
+    renderCurrentSlide();
+    backdrop.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      backdrop.classList.remove('opacity-0');
+      backdrop.classList.add('opacity-100');
+      drawer.classList.add('open');
+    });
+  }
+}
+
+// Render active slide inside the card
+function renderCurrentSlide() {
+  const slides = getContextSlides();
+  const slide = slides[currentSlideIndex] || slides[0];
+
+  const contextLabel = document.getElementById('carouselContextLabel');
+  const cardContainer = document.getElementById('carouselSlideCard');
+  const dotsContainer = document.getElementById('carouselDots');
+  const counterText = document.getElementById('slideCounterText');
+  const btnPrev = document.getElementById('btnPrevSlide');
+  const btnNext = document.getElementById('btnNextSlide');
+
+  if (contextLabel) {
+    contextLabel.textContent = `${currentTabState.toUpperCase()} Guidance`;
+  }
+
+  if (cardContainer) {
+    cardContainer.innerHTML = `
+      <div>
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-black uppercase tracking-wider text-charcoal/60">Insight</span>
+          <span class="${slide.badgeClass} text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm">${slide.badge}</span>
+        </div>
+        <h3 class="text-base font-black text-charcoal mt-2">${slide.title}</h3>
+        <p class="text-xs text-charcoal/80 font-medium mt-1.5 leading-relaxed">${slide.desc}</p>
+      </div>
+      <div class="mt-4 p-3 bg-sea-green/10 rounded-xl border border-sea-green/20 text-[11px] font-semibold text-sea-green flex items-start gap-2">
+        <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <span>${slide.action}</span>
+      </div>
+    `;
+  }
+
+  // Render dots
+  if (dotsContainer) {
+    dotsContainer.innerHTML = slides.map((_, i) => `
+      <div class="carousel-dot ${i === currentSlideIndex ? 'active' : ''}"></div>
+    `).join('');
+  }
+
+  // Update counter & button disabled states
+  if (counterText) {
+    counterText.textContent = `Card ${currentSlideIndex + 1} of ${slides.length}`;
+  }
+  if (btnPrev) btnPrev.disabled = currentSlideIndex === 0;
+  if (btnNext) btnNext.disabled = currentSlideIndex === slides.length - 1;
+}
+
+function nextSlide() {
+  const slides = getContextSlides();
+  if (currentSlideIndex < slides.length - 1) {
+    currentSlideIndex++;
+    renderCurrentSlide();
+  }
+}
+
+function prevSlide() {
+  if (currentSlideIndex > 0) {
+    currentSlideIndex--;
+    renderCurrentSlide();
+  }
+}
+
