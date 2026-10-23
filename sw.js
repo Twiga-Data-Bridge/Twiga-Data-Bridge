@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'twiga-bridge-v8';
+const CACHE_VERSION = 'twiga-bridge-v9';
 const STATIC_ASSETS = [
   './',
   './index.html',
