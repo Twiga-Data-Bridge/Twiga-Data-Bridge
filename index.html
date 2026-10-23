@@ -51,10 +51,10 @@
   <!-- Main Content Stacking Layer -->
   <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 main-content-layer">
 
-    <!-- Boxed Header Container -->
+   <!-- Update the Boxed Header Container around line 46 -->
     <header class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-charcoal/10 gap-4">
       <div class="card-vanilla px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border border-charcoal/10 flex items-center gap-3.5 shadow-sm max-w-fit">
-        <div class="w-8 h-8 rounded-xl bg-sea-green/10 flex items-center justify-center shrink-0 border border-sea-green/20">
+        <div class="w-8 h-8 rounded-xl bg-sea-green/15 flex items-center justify-center shrink-0 border border-sea-green/20">
           <span class="w-2.5 h-2.5 rounded-full bg-sea-green"></span>
         </div>
         <div>
@@ -67,9 +67,20 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2 bg-vanilla px-3.5 py-2 rounded-full border border-charcoal/10 shadow-sm self-start sm:self-auto">
-        <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
-        <span id="syncBadge" class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
+      <div class="flex items-center gap-2 self-start sm:self-auto">
+        <!-- Install App Button (Hidden when app is already installed) -->
+        <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="hidden card-vanilla px-3.5 py-2 rounded-full border border-sea-green/30 shadow-sm flex items-center gap-2 hover:bg-sea-green/10 active:scale-95 transition-all duration-200 cursor-pointer">
+          <svg class="w-3.5 h-3.5 text-sea-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          <span class="text-xs font-black text-sea-green uppercase tracking-wider">Install App</span>
+        </button>
+
+        <!-- Cloud Sync Status Pill -->
+        <div class="flex items-center gap-2 bg-vanilla px-3.5 py-2 rounded-full border border-charcoal/10 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
+          <span id="syncBadge" class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
+        </div>
       </div>
     </header>
 
@@ -400,5 +411,38 @@
     </div>
   </nav>
 
+<!-- iOS Installation Guide Modal -->
+  <div id="iosInstallModal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
+    <div class="card-vanilla p-6 rounded-3xl max-w-sm w-full border border-charcoal/15 shadow-2xl space-y-4">
+      <div class="flex justify-between items-start">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-sea-green/15 flex items-center justify-center text-sea-green">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="text-sm font-black text-charcoal uppercase tracking-wider">Install on iPhone / iPad</h3>
+        </div>
+        <button onclick="closeIosInstallModal()" class="text-charcoal/60 hover:text-charcoal p-1">✕</button>
+      </div>
+      <p class="text-xs text-charcoal/80 font-medium leading-relaxed">
+        Safari requires two quick steps to install this app to your home screen:
+      </p>
+      <div class="space-y-2 text-xs font-semibold text-charcoal">
+        <div class="flex items-center gap-2.5 p-2.5 bg-canvas rounded-xl border border-charcoal/10">
+          <span class="w-5 h-5 rounded-full bg-sea-green text-white flex items-center justify-center text-[10px] shrink-0 font-bold">1</span>
+          <span>Tap the <strong>Share</strong> icon in the bottom Safari bar.</span>
+        </div>
+        <div class="flex items-center gap-2.5 p-2.5 bg-canvas rounded-xl border border-charcoal/10">
+          <span class="w-5 h-5 rounded-full bg-sea-green text-white flex items-center justify-center text-[10px] shrink-0 font-bold">2</span>
+          <span>Scroll down and select <strong>"Add to Home Screen"</strong>.</span>
+        </div>
+      </div>
+      <button onclick="closeIosInstallModal()" class="w-full py-2.5 bg-sea-green text-white text-xs font-bold rounded-xl shadow-sm hover:bg-sea-green/90 transition-colors">
+        Got It
+      </button>
+    </div>
+  </div>
+  
 </body>
 </html>
