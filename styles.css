@@ -113,3 +113,17 @@ body::before {
   display: block;
   opacity: 1;
 }
+
+/* Carousel Progress Indicators */
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: rgba(62, 62, 60, 0.2);
+  transition: all 0.25s ease;
+}
+
+.carousel-dot.active {
+  width: 22px;
+  background-color: var(--color-sea-green);
+}
