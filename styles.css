@@ -1,4 +1,4 @@
-/* Twiga Data Bridge - Luxury Palette & Option A Drawer Integration */
+/* Twiga Data Bridge - Luxury Palette & Option 1 Floating Capsule Navigation */
 :root {
   --color-canvas: #F5F2E8;
   --color-vanilla: #EDE5C8;
@@ -22,7 +22,7 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  /* Crucial: Prevent cards from clipping behind bottom nav and assistant FAB */
+  /* Prevent cards from clipping behind floating bottom dock & assistant FAB */
   padding-bottom: 8.5rem !important;
 }
 
@@ -52,9 +52,11 @@ body::before {
   position: relative;
 }
 
-/* Floating Dock Navigation (Pinterest-Style) */
+/* Floating Navigation Dock (Pinterest-Style) */
 .floating-dock {
   box-shadow: 0 12px 36px -4px rgba(62, 62, 60, 0.16), 0 4px 12px -2px rgba(62, 62, 60, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .nav-tab {
@@ -62,7 +64,7 @@ body::before {
   user-select: none;
 }
 
-/* Active Tab: Solid Sea Green Fill with Pure Vanilla Contrast */
+/* Active State: Solid Sea Green Fill with Pure Vanilla Contrast */
 .nav-tab.active {
   background-color: var(--color-sea-green) !important;
   color: #EDE5C8 !important;
@@ -77,12 +79,12 @@ body::before {
   background-color: rgba(62, 62, 60, 0.05);
 }
 
-/* Safe-area insets for modern mobile edge gestures */
+/* Safe-area insets for mobile edge gestures */
 .pb-safe {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
-/* Status & Accent Badges */
+/* Status Badges */
 .badge-growth {
   background-color: rgba(133, 187, 101, 0.2);
   color: var(--color-sea-green);
@@ -104,7 +106,7 @@ body::before {
   background-color: rgba(62, 62, 60, 0.1);
 }
 
-/* Assistant Drawer Slide Transitions */
+/* Drawer Transitions */
 #helperDrawer.open {
   transform: translateY(0);
 }
@@ -114,7 +116,7 @@ body::before {
   opacity: 1;
 }
 
-/* Carousel Progress Indicators */
+/* Carousel Indicators */
 .carousel-dot {
   width: 8px;
   height: 8px;
