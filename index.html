@@ -290,113 +290,67 @@
 
   </div>
 
+<!-- ======================================================== -->
+  <!-- CONTEXTUAL HORIZONTAL CAROUSEL DRAWER (TWIGA MSAIDIZI)   -->
   <!-- ======================================================== -->
-  <!-- OPTION A: TWIGA MSAIDIZI (HELPER FAB & SLIDE-UP DRAWER)   -->
-  <!-- ======================================================== -->
-
-  <!-- Floating Assistant Trigger Pill (Above Bottom Nav) -->
-  <aside class="fixed bottom-24 right-4 sm:right-8 z-40">
-    <button onclick="toggleHelperDrawer()" id="msaidiziFab" class="card-vanilla px-3.5 py-2.5 rounded-full border border-charcoal/15 shadow-xl flex items-center gap-2.5 group hover:scale-105 active:scale-95 transition-all duration-200">
-      <span class="relative flex h-3 w-3">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-willow opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-3 w-3 bg-sea-green"></span>
-      </span>
-      <span class="text-xs font-black uppercase tracking-wider text-charcoal">Twiga Msaidizi</span>
-      <span class="gold-badge text-[9px] font-black uppercase px-1.5 py-0.5 rounded">Guide</span>
-    </button>
-  </aside>
 
   <!-- Drawer Modal Backdrop -->
   <div id="drawerBackdrop" onclick="toggleHelperDrawer()" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
 
-  <!-- Slide-Up Business Insights Sheet -->
-  <section id="helperDrawer" class="fixed bottom-0 left-0 right-0 max-w-2xl mx-auto z-50 bg-[#EDE5C8] rounded-t-3xl border-t border-x border-charcoal/15 shadow-2xl transform translate-y-full transition-transform duration-300 ease-out flex flex-col max-h-[82vh]">
+  <!-- Slide-Up Carousel Sheet -->
+  <section id="helperDrawer" class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-[#EDE5C8] rounded-t-3xl border-t border-x border-charcoal/15 shadow-2xl transform translate-y-full transition-transform duration-300 ease-out flex flex-col">
     
-    <!-- Drawer Handle & Header -->
-    <div class="p-4 sm:p-5 border-b border-charcoal/10 flex items-center justify-between shrink-0">
+    <!-- Drawer Header -->
+    <div class="px-5 py-4 border-b border-charcoal/10 flex items-center justify-between shrink-0">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-2xl bg-sea-green/15 flex items-center justify-center border border-sea-green/20">
-          <svg class="w-5 h-5 text-sea-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div class="w-8 h-8 rounded-xl bg-sea-green/15 flex items-center justify-center border border-sea-green/20">
+          <svg class="w-4 h-4 text-sea-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
         <div>
-          <h2 class="text-base font-black text-charcoal uppercase tracking-tight">Twiga Msaidizi &bull; Retail Playbook</h2>
-          <p class="text-[11px] text-charcoal/60 font-semibold">Practical intelligence for your shop counter</p>
+          <h2 class="text-sm font-black text-charcoal uppercase tracking-tight">Twiga Msaidizi &bull; Guide</h2>
+          <p id="carouselContextLabel" class="text-[11px] text-charcoal/60 font-semibold">Overview Screen Guidance</p>
         </div>
       </div>
       
       <!-- Close Button -->
-      <button onclick="toggleHelperDrawer()" class="p-2 rounded-full hover:bg-charcoal/10 text-charcoal/60 hover:text-charcoal transition-colors">
+      <button onclick="toggleHelperDrawer()" class="p-1.5 rounded-full hover:bg-charcoal/10 text-charcoal/60 hover:text-charcoal transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
     </div>
 
-    <!-- Scrollable Insight Cards Body -->
-    <div class="p-4 sm:p-6 overflow-y-auto space-y-4">
-
-      <!-- Insight Card 1: Radar Diurnal Peak Strategy -->
-      <article class="p-4 sm:p-5 rounded-2xl bg-canvas border border-charcoal/10 shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase tracking-wider text-charcoal/60">Shift Optimization</span>
-          <span id="insightPeakBadge" class="gold-badge text-[10px] font-black uppercase px-2 py-0.5 rounded">Rush Window</span>
-        </div>
-        <h3 id="insightPeakTitle" class="text-sm font-black text-charcoal mt-1.5">When Customers Buy Your Leader SKU</h3>
-        <p id="insightPeakDesc" class="text-xs text-charcoal/80 font-medium mt-1 leading-relaxed">
-          Loading peak checkout timing insights...
-        </p>
-        <div class="mt-3 p-3 bg-sea-green/10 rounded-xl border border-sea-green/20 text-[11px] font-semibold text-sea-green flex items-start gap-2">
-          <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>
-          <span id="insightPeakAction">Prep your high-volume SKUs and cold display at least 30 minutes before your peak sales window.</span>
-        </div>
+    <!-- Active Single-Slide Viewport -->
+    <div class="p-5">
+      <article id="carouselSlideCard" class="p-5 rounded-2xl bg-canvas border border-charcoal/10 shadow-sm min-h-[220px] flex flex-col justify-between">
+        <!-- Content populated dynamically via app.js -->
       </article>
 
-      <!-- Insight Card 2: Revenue Concentration & Stockout Guard -->
-      <article class="p-4 sm:p-5 rounded-2xl bg-canvas border border-charcoal/10 shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase tracking-wider text-charcoal/60">Inventory Protection</span>
-          <span id="insightShareBadge" class="badge-growth text-[10px] font-black uppercase px-2 py-0.5 rounded-full">Core Driver</span>
+      <!-- Carousel Navigation Controls -->
+      <div class="mt-4 flex items-center justify-between pt-2 border-t border-charcoal/10">
+        <!-- Slide Indicator Dots -->
+        <div id="carouselDots" class="flex items-center gap-1.5">
+          <!-- Dots rendered dynamically -->
         </div>
-        <h3 id="insightShareTitle" class="text-sm font-black text-charcoal mt-1.5">Prevent Revenue Depletion</h3>
-        <p id="insightShareDesc" class="text-xs text-charcoal/80 font-medium mt-1 leading-relaxed">
-          Evaluating catalog concentration and dependency...
-        </p>
-        <div class="mt-3 p-3 bg-charcoal/5 rounded-xl border border-charcoal/10 text-[11px] font-semibold text-charcoal/80 flex items-start gap-2">
-          <svg class="w-4 h-4 shrink-0 mt-0.5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-          <span id="insightShareAction">Re-order before current inventory drops below a 2-day sales buffer.</span>
-        </div>
-      </article>
 
-      <!-- Insight Card 3: Cashier Velocity & Settlement Audit -->
-      <article class="p-4 sm:p-5 rounded-2xl bg-canvas border border-charcoal/10 shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase tracking-wider text-charcoal/60">Cash Flow & Register Audit</span>
-          <span class="bg-sea-green/15 text-sea-green text-[10px] font-black uppercase px-2 py-0.5 rounded-full">Reconciliation</span>
+        <!-- Arrow Controls -->
+        <div class="flex items-center gap-2">
+          <button onclick="prevSlide()" id="btnPrevSlide" class="px-3 py-1.5 rounded-xl border border-charcoal/20 bg-canvas text-charcoal text-xs font-bold hover:bg-vanilla disabled:opacity-30 disabled:pointer-events-none transition-colors">
+            &larr; Prev
+          </button>
+          <button onclick="nextSlide()" id="btnNextSlide" class="px-4 py-1.5 rounded-xl bg-sea-green text-white text-xs font-bold hover:bg-sea-green/90 disabled:opacity-30 disabled:pointer-events-none shadow-sm transition-colors">
+            Next &rarr;
+          </button>
         </div>
-        <h3 class="text-sm font-black text-charcoal mt-1.5">Daily Register Balance Checklist</h3>
-        <p class="text-xs text-charcoal/80 font-medium mt-1 leading-relaxed">
-          68% of transactions flow through M-Pesa Express, while 24% clear in cash. Match total register slips against your mobile money till statement before shifting cashiers.
-        </p>
-        <ul class="mt-3 space-y-1.5 text-[11px] font-semibold text-charcoal/70 list-disc list-inside">
-          <li>Audit Mary & John’s drawer count against tickets at shift handover.</li>
-          <li>Keep small change available for early morning cash shoppers (6–8 AM).</li>
-        </ul>
-      </article>
-
+      </div>
     </div>
 
-    <!-- Drawer Footer Actions -->
-    <div class="p-4 border-t border-charcoal/10 bg-canvas/60 rounded-b-3xl flex justify-between items-center shrink-0">
-      <span class="text-[10px] font-mono text-charcoal/50">Twiga POS Heuristic Engine v1</span>
-      <button onclick="toggleHelperDrawer()" class="px-5 py-2 rounded-xl bg-charcoal text-canvas text-xs font-bold hover:bg-charcoal/90 transition-colors">
-        Got It
-      </button>
+    <!-- Footer -->
+    <div class="px-5 py-3 border-t border-charcoal/10 bg-canvas/60 rounded-b-3xl flex justify-between items-center text-[10px] font-mono text-charcoal/50">
+      <span>Twiga Contextual Engine</span>
+      <span id="slideCounterText">Card 1 of 3</span>
     </div>
 
   </section>
