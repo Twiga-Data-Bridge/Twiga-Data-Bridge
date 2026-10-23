@@ -450,3 +450,65 @@ window.addEventListener('offline', () => {
   if (b) b.textContent = 'Offline Mode';
 });
 window.addEventListener('DOMContentLoaded', loadDashboard);
+
+// ==========================================
+// PWA INSTALL LOGIC (Android & iOS)
+// ==========================================
+let deferredInstallPrompt = null;
+
+const isIos = () => {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent);
+};
+
+const isInStandaloneMode = () => {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+};
+
+// Intercept Chrome/Android native prompt
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  
+  // Reveal button only if running inside browser tab
+  if (!isInStandaloneMode()) {
+    const installBtn = document.getElementById('pwaInstallBtn');
+    if (installBtn) installBtn.classList.remove('hidden');
+  }
+});
+
+// Show install button for iOS users if not installed
+window.addEventListener('DOMContentLoaded', () => {
+  if (isIos() && !isInStandaloneMode()) {
+    const installBtn = document.getElementById('pwaInstallBtn');
+    if (installBtn) installBtn.classList.remove('hidden');
+  }
+});
+
+// Trigger installation when merchant clicks "Install App"
+async function triggerPwaInstall() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      const installBtn = document.getElementById('pwaInstallBtn');
+      if (installBtn) installBtn.classList.add('hidden');
+    }
+    deferredInstallPrompt = null;
+  } else if (isIos()) {
+    const iosModal = document.getElementById('iosInstallModal');
+    if (iosModal) iosModal.classList.remove('hidden');
+  }
+}
+
+function closeIosInstallModal() {
+  const iosModal = document.getElementById('iosInstallModal');
+  if (iosModal) iosModal.classList.add('hidden');
+}
+
+// Automatically hide button after installation finishes
+window.addEventListener('appinstalled', () => {
+  const installBtn = document.getElementById('pwaInstallBtn');
+  if (installBtn) installBtn.classList.add('hidden');
+  deferredInstallPrompt = null;
+});
