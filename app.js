@@ -12,11 +12,9 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let salesChartInstance = null;
 let radarChartInstance = null;
 
-// Global Application & Copilot State
+// Global State
 let currentTabState = 'overview';
-let currentSlideIndex = 0;
-let currentMsaidiziMode = 'playbook'; // 'playbook' | 'chat'
-let cachedStoreData = null; // Stored telemetry for AI copilot queries
+let cachedStoreData = null;
 
 const RADAR_AXIS_LABELS = [
   ['Early Morning', '6–8am'],
@@ -30,13 +28,11 @@ const RADAR_AXIS_LABELS = [
 ];
 
 // ==========================================
-// SPA NAVIGATION CONTROLLER
+// 4-WAY SPA NAVIGATION CONTROLLER
 // ==========================================
 function switchTab(targetTab) {
   currentTabState = targetTab;
-  currentSlideIndex = 0;
-
-  const tabs = ['overview', 'catalog', 'operations'];
+  const tabs = ['overview', 'catalog', 'operations', 'copilot'];
   
   tabs.forEach((tab) => {
     const panel = document.getElementById(`panel-${tab}`);
@@ -53,200 +49,23 @@ function switchTab(targetTab) {
     }
   });
 
+  // Re-render chart geometries when returning to their panels
   if (targetTab === 'overview' && radarChartInstance) {
     radarChartInstance.resize();
   }
   if (targetTab === 'catalog' && salesChartInstance) {
     salesChartInstance.resize();
   }
-
-  // Update carousel guidance if drawer is open
-  const drawer = document.getElementById('helperDrawer');
-  if (drawer && drawer.classList.contains('open') && currentMsaidiziMode === 'playbook') {
-    renderCurrentSlide();
+  if (targetTab === 'copilot') {
+    const stream = document.getElementById('chatMessagesStream');
+    if (stream) stream.scrollTop = stream.scrollHeight;
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // ==========================================
-// DRAWER & CAROUSEL CONTROLLER
-// ==========================================
-function toggleHelperDrawer() {
-  const drawer = document.getElementById('helperDrawer');
-  const backdrop = document.getElementById('drawerBackdrop');
-  if (!drawer || !backdrop) return;
-
-  const isOpen = drawer.classList.contains('open');
-  if (isOpen) {
-    drawer.classList.remove('open');
-    backdrop.classList.remove('opacity-100');
-    backdrop.classList.add('opacity-0');
-    setTimeout(() => backdrop.classList.add('hidden'), 300);
-  } else {
-    currentSlideIndex = 0;
-    renderCurrentSlide();
-    backdrop.classList.remove('hidden');
-    requestAnimationFrame(() => {
-      backdrop.classList.remove('opacity-0');
-      backdrop.classList.add('opacity-100');
-      drawer.classList.add('open');
-    });
-  }
-}
-
-function switchMsaidiziMode(mode) {
-  currentMsaidiziMode = mode;
-  const playbookContainer = document.getElementById('msaidiziPlaybookContainer');
-  const chatContainer = document.getElementById('msaidiziChatContainer');
-  const modeBtnPlaybook = document.getElementById('modeBtnPlaybook');
-  const modeBtnChat = document.getElementById('modeBtnChat');
-  const counterText = document.getElementById('slideCounterText');
-  const subtitle = document.getElementById('msaidiziModeSubtitle');
-
-  if (mode === 'playbook') {
-    playbookContainer?.classList.remove('hidden');
-    chatContainer?.classList.add('hidden');
-    modeBtnPlaybook.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 bg-sea-green text-white shadow-sm cursor-pointer';
-    modeBtnChat.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 text-charcoal/70 hover:text-charcoal cursor-pointer';
-    counterText?.classList.remove('hidden');
-    if (subtitle) subtitle.textContent = 'Store Intelligence Playbook';
-    renderCurrentSlide();
-  } else {
-    playbookContainer?.classList.add('hidden');
-    chatContainer?.classList.remove('hidden');
-    modeBtnChat.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 bg-sea-green text-white shadow-sm cursor-pointer';
-    modeBtnPlaybook.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 text-charcoal/70 hover:text-charcoal cursor-pointer';
-    counterText?.classList.add('hidden');
-    if (subtitle) subtitle.textContent = 'Live Terminal Copilot (English & Swahili)';
-    
-    // Auto-scroll chat to latest message
-    const stream = document.getElementById('chatMessagesStream');
-    if (stream) stream.scrollTop = stream.scrollHeight;
-  }
-}
-
-function getContextSlides() {
-  const leaderName = document.getElementById('radarSkuTitle')?.textContent || 'Sales Leader';
-  const leaderUnits = document.getElementById('radarUnits')?.textContent || '--';
-  const leaderShare = document.getElementById('radarShare')?.textContent || '--%';
-  const leaderPeak = document.getElementById('radarPeak')?.textContent || 'Evening';
-  const totalUnits = document.getElementById('totalUnits')?.textContent || '--';
-  const totalRev = document.getElementById('totalRevenue')?.textContent || 'KSh --';
-
-  const slideDeck = {
-    overview: [
-      {
-        badge: 'Leader & Peak Demand',
-        badgeClass: 'gold-badge',
-        title: `${leaderName} (${leaderShare} Volume)`,
-        desc: `This product is your primary revenue generator, peaking during ${leaderPeak}. Stock depletion during this trading window causes immediate profit loss.`,
-        action: `Front-face at least 30 units of ${leaderName} and verify cold-shelf readiness 30 minutes before ${leaderPeak}.`
-      },
-      {
-        badge: 'Volume Throughput',
-        badgeClass: 'badge-growth',
-        title: `${totalUnits} Total Units Dispatched`,
-        desc: `Reflects physical checkout item count across all shelves today. A surge in units without matching revenue growth signals heavier low-margin product sales.`,
-        action: `Review cashier scanning pace and prepare replenishments for secondary basket items during off-peak trade.`
-      },
-      {
-        badge: 'Total Revenue',
-        badgeClass: 'bg-sea-green/15 text-sea-green',
-        title: `${totalRev} Cleared Volume`,
-        desc: `Gross cumulative receipts settled via cash, M-Pesa, and card. Represents your net store inflow before supplier settlements.`,
-        action: `Verify physical cash in drawer matches register receipts before releasing shift cashiers.`
-      }
-    ],
-    catalog: [
-      {
-        badge: 'Revenue Distribution',
-        badgeClass: 'gold-badge',
-        title: 'Catalog Revenue Comparison',
-        desc: `Compares gross turnover across inventory lines. Taller bars indicate high-velocity capital turnover items; shorter bars indicate slower-moving lines.`,
-        action: `Allocate prime shelf eye-level space to your top 2 revenue-earning SKUs to accelerate fast turnarounds.`
-      },
-      {
-        badge: 'Inventory Audit',
-        badgeClass: 'badge-growth',
-        title: 'SKU Inventory Ledger',
-        desc: `Itemizes every unit sold against exact gross yield. Shows which individual products justify their supplier order cadence.`,
-        action: `Flag items where units sold remain low over 3 consecutive shifts to reduce stagnant stock tie-up.`
-      }
-    ],
-    operations: [
-      {
-        badge: 'Cashier Audit',
-        badgeClass: 'gold-badge',
-        title: 'Shift Performance Tracking',
-        desc: `Monitors register throughput and transaction volumes per cashier to maintain accountability and prevent drawer discrepancies.`,
-        action: `Reconcile total tickets against drawer settlement before changing cashier logins.`
-      }
-    ]
-  };
-
-  return slideDeck[currentTabState] || slideDeck.overview;
-}
-
-function renderCurrentSlide() {
-  const slides = getContextSlides();
-  const slide = slides[currentSlideIndex] || slides[0];
-
-  const cardContainer = document.getElementById('carouselSlideCard');
-  const dotsContainer = document.getElementById('carouselDots');
-  const counterText = document.getElementById('slideCounterText');
-  const btnPrev = document.getElementById('btnPrevSlide');
-  const btnNext = document.getElementById('btnNextSlide');
-
-  if (cardContainer) {
-    cardContainer.innerHTML = `
-      <div>
-        <div class="flex items-center justify-between">
-          <span class="text-[10px] font-black uppercase tracking-wider text-charcoal/60">Insight</span>
-          <span class="${slide.badgeClass} text-[10px] font-black uppercase px-2 py-0.5 rounded shadow-sm">${slide.badge}</span>
-        </div>
-        <h3 class="text-base font-black text-charcoal mt-2">${slide.title}</h3>
-        <p class="text-xs text-charcoal/80 font-medium mt-1.5 leading-relaxed">${slide.desc}</p>
-      </div>
-      <div class="mt-4 p-3 bg-sea-green/10 rounded-xl border border-sea-green/20 text-[11px] font-semibold text-sea-green flex items-start gap-2">
-        <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-        <span>${slide.action}</span>
-      </div>
-    `;
-  }
-
-  if (dotsContainer) {
-    dotsContainer.innerHTML = slides.map((_, i) => `
-      <div class="carousel-dot ${i === currentSlideIndex ? 'active' : ''}"></div>
-    `).join('');
-  }
-
-  if (counterText) {
-    counterText.textContent = `Card ${currentSlideIndex + 1} of ${slides.length}`;
-  }
-  if (btnPrev) btnPrev.disabled = currentSlideIndex === 0;
-  if (btnNext) btnNext.disabled = currentSlideIndex === slides.length - 1;
-}
-
-function nextSlide() {
-  const slides = getContextSlides();
-  if (currentSlideIndex < slides.length - 1) {
-    currentSlideIndex++;
-    renderCurrentSlide();
-  }
-}
-
-function prevSlide() {
-  if (currentSlideIndex > 0) {
-    currentSlideIndex--;
-    renderCurrentSlide();
-  }
-}
-
-// ==========================================
-// PHASE 1: NATURAL LANGUAGE COPILOT (NLU ENGINE)
+// NATURAL LANGUAGE COPILOT (IN-APP AI AGENT)
 // ==========================================
 
 function sendQuickPrompt(promptText) {
@@ -265,11 +84,9 @@ function handleChatSubmit(event) {
   const query = input.value.trim();
   if (!query) return;
 
-  // Append user bubble to chat stream
   appendChatMessage(query, 'user');
   input.value = '';
 
-  // Process intent and respond with slight delay to mimic assistant reasoning
   setTimeout(() => {
     const response = processCopilotQuery(query);
     appendChatMessage(response, 'bot');
@@ -291,7 +108,7 @@ function appendChatMessage(messageHtml, sender) {
     `;
   } else {
     messageWrapper.innerHTML = `
-      <div class="w-6 h-6 rounded-lg bg-sea-green flex items-center justify-center text-white text-[10px] font-black shrink-0 mt-0.5">
+      <div class="w-7 h-7 rounded-xl bg-sea-green flex items-center justify-center text-white text-[11px] font-black shrink-0 mt-0.5 shadow-sm">
         TB
       </div>
       <div class="chat-bubble-bot">
@@ -363,7 +180,7 @@ function processCopilotQuery(rawQuery) {
     `;
   }
 
-  // Fallback Helper Response
+  // Fallback Guide
   return `
     <p>I can help you monitor today's store performance. Try asking:</p>
     <ul class="mt-1 list-disc list-inside space-y-0.5 text-[11px] text-charcoal/80">
@@ -606,7 +423,7 @@ function renderBarChart(catalog) {
 }
 
 // ==========================================
-// PWA INSTALL LOGIC (Android & iOS)
+// PWA INSTALL LOGIC
 // ==========================================
 let deferredInstallPrompt = null;
 
