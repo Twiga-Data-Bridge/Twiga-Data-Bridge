@@ -117,6 +117,53 @@ async function handleChatSubmit(event) {
   }
 }
 
+// ==========================================
+// ZERO-DEPENDENCY ROBUST MARKDOWN PARSER
+// ==========================================
+
+function formatMarkdown(rawText) {
+  if (!rawText) return '';
+
+  // Step 1: Escape raw HTML entities to prevent DOM corruption & XSS
+  let text = rawText
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  // Step 2: Parse Headers (### Header, ## Header, # Header)
+  // Scaled down to compact typography suitable for mobile chat bubbles
+  text = text.replace(/^### (.*$)/gim, '<h4 class="font-black text-xs uppercase tracking-wider text-charcoal mt-2.5 mb-1">$1</h4>');
+  text = text.replace(/^## (.*$)/gim, '<h3 class="font-black text-sm text-charcoal mt-3 mb-1.5">$1</h3>');
+  text = text.replace(/^# (.*$)/gim, '<h2 class="font-black text-sm uppercase text-sea-green mt-3.5 mb-1.5">$1</h2>');
+
+  // Step 3: Parse Blockquotes (> Quote) -> Styled as frosted callout pills
+  text = text.replace(/^>\s?(.*$)/gim, '<div class="chat-callout">$1</div>');
+
+  // Step 4: Parse Inline Code / Currency Tags (`KSh 15,000` or `SKU-B01`)
+  text = text.replace(/`([^`]+)`/g, '<code class="chat-code">$1</code>');
+
+  // Step 5: Parse Bold and Italic
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-charcoal">$1</strong>');
+  text = text.replace(/\*([^\*]+)\*/g, '<em class="italic text-charcoal/85">$1</em>');
+
+  // Step 6: Process Lists (Unordered * / - and Ordered 1.)
+  // Wrap list items in dedicated li containers
+  text = text.replace(/^\s*[\-\*]\s+(.*)$/gim, '<li class="chat-list-item">$1</li>');
+  text = text.replace(/^\s*(\d+)\.\s+(.*)$/gim, '<li class="chat-list-item-num" data-num="$1.">$2</li>');
+
+  // Group adjacent <li> tags into a proper <ul> or <ol> block
+  text = text.replace(/(<li class="chat-list-item">[\s\S]*?<\/li>)(?!(?:\s*<li class="chat-list-item">))/gim, '<ul class="chat-list">$1</ul>');
+  text = text.replace(/(<li class="chat-list-item-num"[^>]*>[\s\S]*?<\/li>)(?!(?:\s*<li class="chat-list-item-num"))/gim, '<ol class="chat-list-num">$1</ol>');
+
+  // Step 7: Clean paragraph breaks and line breaks
+  // Convert double newlines into block spacing, and single newlines into clean breaks
+  text = text.replace(/\n\n+/g, '<div class="h-2"></div>');
+  text = text.replace(/\n/g, '<br/>');
+
+  return text.trim();
+}
+
+// Updated message appender supporting clean Markdown formatting
 function appendChatMessage(messageHtml, sender) {
   const stream = document.getElementById('chatMessagesStream');
   if (!stream) return;
@@ -125,18 +172,21 @@ function appendChatMessage(messageHtml, sender) {
   messageWrapper.className = sender === 'user' ? 'flex justify-end' : 'flex items-start gap-2.5';
 
   if (sender === 'user') {
+    // User messages are rendered as clean text
     messageWrapper.innerHTML = `
       <div class="chat-bubble-user">
         <p class="text-xs font-semibold leading-relaxed">${messageHtml}</p>
       </div>
     `;
   } else {
+    // Assistant responses are dynamically parsed into rich Markdown elements
+    const formattedContent = formatMarkdown(messageHtml);
     messageWrapper.innerHTML = `
       <div class="w-7 h-7 rounded-xl bg-sea-green flex items-center justify-center text-white text-[11px] font-black shrink-0 mt-0.5 shadow-sm">
         TB
       </div>
-      <div class="chat-bubble-bot">
-        <div class="text-xs text-charcoal font-medium leading-relaxed">${messageHtml}</div>
+      <div class="chat-bubble-bot font-sans text-xs text-charcoal leading-relaxed space-y-1">
+        ${formattedContent}
       </div>
     `;
   }
