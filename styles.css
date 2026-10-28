@@ -1,4 +1,4 @@
-/* Twiga Data Bridge - Luxury Palette & Option 1 Floating Capsule Navigation */
+/* Twiga Data Bridge - Luxury Palette & 4-Tab Native App Layout */
 :root {
   --color-canvas: #F5F2E8;
   --color-vanilla: #EDE5C8;
@@ -22,8 +22,8 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  /* Prevent cards from clipping behind floating bottom dock & assistant FAB */
-  padding-bottom: 8.5rem !important;
+  /* Safe clearance above the 4-tab floating navigation dock */
+  padding-bottom: 7.5rem !important;
 }
 
 /* Ambient Radial Vignette */
@@ -52,7 +52,7 @@ body::before {
   position: relative;
 }
 
-/* Floating Navigation Dock (Pinterest-Style) */
+/* 4-Tab Floating Dock Navigation */
 .floating-dock {
   box-shadow: 0 12px 36px -4px rgba(62, 62, 60, 0.16), 0 4px 12px -2px rgba(62, 62, 60, 0.08);
   backdrop-filter: blur(16px);
@@ -79,12 +79,12 @@ body::before {
   background-color: rgba(62, 62, 60, 0.05);
 }
 
-/* Safe-area insets for mobile edge gestures */
+/* Safe-area insets for modern mobile edge gestures */
 .pb-safe {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
-/* Status Badges */
+/* Status & Accent Badges */
 .badge-growth {
   background-color: rgba(133, 187, 101, 0.2);
   color: var(--color-sea-green);
@@ -103,81 +103,4 @@ body::before {
 
 .skeleton {
   animation: pulse-subtle 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  background-color: rgba(62, 62, 60, 0.1);
-}
-
-/* Drawer Transitions */
-#helperDrawer.open {
-  transform: translateY(0);
-}
-
-#drawerBackdrop.open {
-  display: block;
-  opacity: 1;
-}
-
-/* Carousel Indicators */
-.carousel-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 9999px;
-  background-color: rgba(62, 62, 60, 0.2);
-  transition: all 0.25s ease;
-}
-
-.carousel-dot.active {
-  width: 22px;
-  background-color: var(--color-sea-green);
-}
-
-/* ======================================================== */
-/* PHASE 1: NATURAL LANGUAGE COPILOT CHAT STYLING           */
-/* ======================================================== */
-
-.chip-suggestion {
-  white-space: nowrap;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  background-color: var(--color-canvas);
-  border: 1px solid rgba(62, 62, 60, 0.12);
-  color: var(--color-charcoal);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.chip-suggestion:hover {
-  background-color: var(--color-sea-green);
-  color: #FFFFFF;
-  border-color: var(--color-sea-green);
-}
-
-.chat-bubble-bot {
-  background-color: var(--color-canvas);
-  border: 1px solid rgba(62, 62, 60, 0.12);
-  border-radius: 18px 18px 18px 4px;
-  padding: 10px 14px;
-  max-width: 85%;
-  box-shadow: 0 2px 8px -1px rgba(62, 62, 60, 0.04);
-}
-
-.chat-bubble-user {
-  background-color: var(--color-sea-green);
-  color: #FFFFFF;
-  border-radius: 18px 18px 4px 18px;
-  padding: 10px 14px;
-  max-width: 85%;
-  margin-left: auto;
-  box-shadow: 0 2px 10px -2px rgba(34, 141, 87, 0.35);
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+  background-color: rgba(62, 62, 60,
