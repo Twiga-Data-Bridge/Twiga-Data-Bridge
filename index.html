@@ -18,7 +18,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 
-  <!-- Preconnect to Supabase -->
+  <!-- Preconnect to Supabase & CDN Resources -->
   <link rel="preconnect" href="https://ofyrcyrzdeqacbatpgyk.supabase.co" crossorigin>
   <link rel="dns-prefetch" href="https://ofyrcyrzdeqacbatpgyk.supabase.co">
   
@@ -76,7 +76,7 @@
           <span class="text-xs font-black text-sea-green uppercase tracking-wider">Install App</span>
         </button>
 
-        <!-- Cloud Sync Status Pill with Explicit ID -->
+        <!-- Cloud Sync Status Pill -->
         <div class="flex items-center gap-2 bg-vanilla px-3.5 py-2 rounded-full border border-charcoal/10 shadow-sm">
           <span class="w-2 h-2 rounded-full bg-willow animate-ping"></span>
           <span id="syncBadge" class="text-xs font-bold text-charcoal uppercase tracking-wider">Cloud Sync</span>
@@ -214,7 +214,7 @@
               </tr>
             </thead>
             <tbody id="catalogTableBody" class="divide-y divide-charcoal/5 font-medium">
-              <!-- Injected via app.js -->
+              <!-- Dynamically populated via app.js -->
             </tbody>
           </table>
         </div>
@@ -295,7 +295,7 @@
     </section>
 
     <!-- ========================================== -->
-    <!-- VIEW PANEL 4: TWIGA MSAIDIZI AI COPILOT    -->
+    <!-- VIEW PANEL 4: TWIGA MSAIDIZI BI COPILOT    -->
     <!-- ========================================== -->
     <section id="panel-copilot" class="hidden space-y-4 mt-6">
       
@@ -309,29 +309,29 @@
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <h2 class="text-base font-black text-charcoal uppercase tracking-tight">Twiga Msaidizi AI</h2>
-              <span class="gold-badge text-[9px] font-black uppercase px-1.5 py-0.5 rounded">Store Copilot</span>
+              <h2 class="text-base font-black text-charcoal uppercase tracking-tight">Twiga Msaidizi BI Copilot</h2>
+              <span class="gold-badge text-[9px] font-black uppercase px-1.5 py-0.5 rounded">Grounded AI</span>
             </div>
-            <p class="text-xs text-charcoal/70 font-medium">Conversational store manager &bull; English &amp; Sheng/Swahili</p>
+            <p class="text-xs text-charcoal/70 font-medium">Enterprise Retail Analyst &bull; English &amp; Sheng/Swahili</p>
           </div>
         </div>
 
         <div class="flex items-center gap-2 self-start sm:self-auto text-[11px] font-bold text-sea-green bg-canvas px-3 py-1.5 rounded-xl border border-charcoal/10">
           <span class="w-2 h-2 rounded-full bg-willow"></span>
-          <span>Live Telemetry Synced</span>
+          <span>Supabase Grounded</span>
         </div>
       </div>
 
       <!-- Main Chat Interface Card -->
-      <div class="card-vanilla rounded-3xl border border-charcoal/5 overflow-hidden flex flex-col" style="min-height: 480px; height: calc(100vh - 280px); max-height: 620px;">
+      <div class="card-vanilla rounded-3xl border border-charcoal/5 overflow-hidden flex flex-col" style="min-height: 520px; height: calc(100vh - 270px); max-height: 640px;">
         
-        <!-- Quick Query Suggestion Chips -->
+        <!-- Quick BI Suggestion Chips -->
         <div class="px-4 py-3 flex gap-2 overflow-x-auto no-scrollbar shrink-0 border-b border-charcoal/10 bg-canvas/40">
           <button onclick="sendQuickPrompt('Today revenue summary')" class="chip-suggestion cursor-pointer">💰 Revenue Leo</button>
-          <button onclick="sendQuickPrompt('Which product is leading?')" class="chip-suggestion cursor-pointer">🏆 Top SKU</button>
-          <button onclick="sendQuickPrompt('M-Pesa vs Cash balance')" class="chip-suggestion cursor-pointer">📱 M-Pesa vs Cash</button>
-          <button onclick="sendQuickPrompt('Cashier performance')" class="chip-suggestion cursor-pointer">👥 Shift Audit</button>
-          <button onclick="sendQuickPrompt('When should I restock?')" class="chip-suggestion cursor-pointer">📦 Restock Advice</button>
+          <button onclick="sendQuickPrompt('Which product is leading in volume and why?')" class="chip-suggestion cursor-pointer">🏆 Top SKU Analysis</button>
+          <button onclick="sendQuickPrompt('Analyze payment risks between M-Pesa and Cash')" class="chip-suggestion cursor-pointer">📱 Payment Audit</button>
+          <button onclick="sendQuickPrompt('Audit Mary vs John shift performance')" class="chip-suggestion cursor-pointer">👥 Shift Audit</button>
+          <button onclick="sendQuickPrompt('What is our stockout exposure if Tusker runs out?')" class="chip-suggestion cursor-pointer">⚠️ Stockout Exposure</button>
         </div>
 
         <!-- Scrollable Message Stream -->
@@ -342,9 +342,9 @@
               TB
             </div>
             <div class="chat-bubble-bot">
-              <p class="font-bold text-xs text-charcoal">Habari! I am your Twiga Store Copilot.</p>
+              <p class="font-bold text-xs text-charcoal">Habari! I am your Twiga Business Intelligence Copilot.</p>
               <p class="text-xs text-charcoal/80 mt-1 leading-relaxed">
-                I monitor your register exports, peak hours, and cashier shifts. Ask me anything in English, Swahili, or Sheng.
+                I analyze your register turnover, cashier velocity, and demand rushes. Ask me commercial questions in English, Swahili, or Sheng.
               </p>
             </div>
           </div>
