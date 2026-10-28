@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'twiga-bridge-v9';
+const CACHE_VERSION = 'twiga-bridge-v10';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -20,39 +20,25 @@ const STATIC_ASSETS = [
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
-// Pre-cache core shell assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    })
+    caches.open(CACHE_VERSION).then((cache) => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Purge obsolete caches on activation
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_VERSION) {
-            return caches.delete(key);
-          }
-        })
-      )
+      Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key)))
     )
   );
   self.clients.claim();
 });
 
-// Dynamic fetch interceptor:
-// - App shell & static assets: Cache-First with background revalidation
-// - API calls (Supabase): Network-First, caching successful responses for offline viewing
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Supabase API requests: Network-First with Cache Fallback
   if (url.hostname.includes('supabase.co')) {
     event.respondWith(
       fetch(event.request)
@@ -68,7 +54,6 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static Assets: Cache-First, fallback to network
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
