@@ -10,7 +10,7 @@ const SUPABASE_URL = 'https://ofyrcyrzdeqacbatpgyk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9meXJjeXJ6ZGVxYWNiYXRwZ3lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI0NjUsImV4cCI6MjA5MDUzODQ2NX0.9P1t04yVn23Z5jL3c0F1y1aL9S8r_qV8J3T6y1c0F1y';
 
 // Optional Serverless LLM Endpoint (Leave empty to use intelligent client-side NLU heuristics)
-const COPILOT_API_ENDPOINT = ''; 
+const COPILOT_API_ENDPOINT = 'https://3raglirfza.execute-api.eu-north-1.amazonaws.com/copilot'; 
 
 let salesChartInstance = null;
 let radarChartInstance = null;
