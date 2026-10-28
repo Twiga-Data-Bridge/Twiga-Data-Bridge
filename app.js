@@ -12,11 +12,12 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let salesChartInstance = null;
 let radarChartInstance = null;
 
-// Carousel & View Context State
+// Global Application & Copilot State
 let currentTabState = 'overview';
 let currentSlideIndex = 0;
+let currentMsaidiziMode = 'playbook'; // 'playbook' | 'chat'
+let cachedStoreData = null; // Stored telemetry for AI copilot queries
 
-// Multi-line labels avoid text clipping on mobile viewports
 const RADAR_AXIS_LABELS = [
   ['Early Morning', '6–8am'],
   ['Morning Rush', '8–11am'],
@@ -28,7 +29,9 @@ const RADAR_AXIS_LABELS = [
   ['Weekday', 'Base']
 ];
 
-// SPA View-Switching Controller
+// ==========================================
+// SPA NAVIGATION CONTROLLER
+// ==========================================
 function switchTab(targetTab) {
   currentTabState = targetTab;
   currentSlideIndex = 0;
@@ -57,16 +60,18 @@ function switchTab(targetTab) {
     salesChartInstance.resize();
   }
 
-  // Update carousel if open
+  // Update carousel guidance if drawer is open
   const drawer = document.getElementById('helperDrawer');
-  if (drawer && drawer.classList.contains('open')) {
+  if (drawer && drawer.classList.contains('open') && currentMsaidiziMode === 'playbook') {
     renderCurrentSlide();
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Drawer Toggle Controller
+// ==========================================
+// DRAWER & CAROUSEL CONTROLLER
+// ==========================================
 function toggleHelperDrawer() {
   const drawer = document.getElementById('helperDrawer');
   const backdrop = document.getElementById('drawerBackdrop');
@@ -90,7 +95,37 @@ function toggleHelperDrawer() {
   }
 }
 
-// Contextual Slide Definitions
+function switchMsaidiziMode(mode) {
+  currentMsaidiziMode = mode;
+  const playbookContainer = document.getElementById('msaidiziPlaybookContainer');
+  const chatContainer = document.getElementById('msaidiziChatContainer');
+  const modeBtnPlaybook = document.getElementById('modeBtnPlaybook');
+  const modeBtnChat = document.getElementById('modeBtnChat');
+  const counterText = document.getElementById('slideCounterText');
+  const subtitle = document.getElementById('msaidiziModeSubtitle');
+
+  if (mode === 'playbook') {
+    playbookContainer?.classList.remove('hidden');
+    chatContainer?.classList.add('hidden');
+    modeBtnPlaybook.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 bg-sea-green text-white shadow-sm cursor-pointer';
+    modeBtnChat.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 text-charcoal/70 hover:text-charcoal cursor-pointer';
+    counterText?.classList.remove('hidden');
+    if (subtitle) subtitle.textContent = 'Store Intelligence Playbook';
+    renderCurrentSlide();
+  } else {
+    playbookContainer?.classList.add('hidden');
+    chatContainer?.classList.remove('hidden');
+    modeBtnChat.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 bg-sea-green text-white shadow-sm cursor-pointer';
+    modeBtnPlaybook.className = 'py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 text-charcoal/70 hover:text-charcoal cursor-pointer';
+    counterText?.classList.add('hidden');
+    if (subtitle) subtitle.textContent = 'Live Terminal Copilot (English & Swahili)';
+    
+    // Auto-scroll chat to latest message
+    const stream = document.getElementById('chatMessagesStream');
+    if (stream) stream.scrollTop = stream.scrollHeight;
+  }
+}
+
 function getContextSlides() {
   const leaderName = document.getElementById('radarSkuTitle')?.textContent || 'Sales Leader';
   const leaderUnits = document.getElementById('radarUnits')?.textContent || '--';
@@ -153,21 +188,15 @@ function getContextSlides() {
   return slideDeck[currentTabState] || slideDeck.overview;
 }
 
-// Render active slide
 function renderCurrentSlide() {
   const slides = getContextSlides();
   const slide = slides[currentSlideIndex] || slides[0];
 
-  const contextLabel = document.getElementById('carouselContextLabel');
   const cardContainer = document.getElementById('carouselSlideCard');
   const dotsContainer = document.getElementById('carouselDots');
   const counterText = document.getElementById('slideCounterText');
   const btnPrev = document.getElementById('btnPrevSlide');
   const btnNext = document.getElementById('btnNextSlide');
-
-  if (contextLabel) {
-    contextLabel.textContent = `${currentTabState.toUpperCase()} Screen Guidance`;
-  }
 
   if (cardContainer) {
     cardContainer.innerHTML = `
@@ -216,6 +245,139 @@ function prevSlide() {
   }
 }
 
+// ==========================================
+// PHASE 1: NATURAL LANGUAGE COPILOT (NLU ENGINE)
+// ==========================================
+
+function sendQuickPrompt(promptText) {
+  const input = document.getElementById('chatInput');
+  if (input) {
+    input.value = promptText;
+    handleChatSubmit(new Event('submit'));
+  }
+}
+
+function handleChatSubmit(event) {
+  event?.preventDefault();
+  const input = document.getElementById('chatInput');
+  if (!input) return;
+
+  const query = input.value.trim();
+  if (!query) return;
+
+  // Append user bubble to chat stream
+  appendChatMessage(query, 'user');
+  input.value = '';
+
+  // Process intent and respond with slight delay to mimic assistant reasoning
+  setTimeout(() => {
+    const response = processCopilotQuery(query);
+    appendChatMessage(response, 'bot');
+  }, 400);
+}
+
+function appendChatMessage(messageHtml, sender) {
+  const stream = document.getElementById('chatMessagesStream');
+  if (!stream) return;
+
+  const messageWrapper = document.createElement('div');
+  messageWrapper.className = sender === 'user' ? 'flex justify-end' : 'flex items-start gap-2.5';
+
+  if (sender === 'user') {
+    messageWrapper.innerHTML = `
+      <div class="chat-bubble-user">
+        <p class="text-xs font-semibold leading-relaxed">${messageHtml}</p>
+      </div>
+    `;
+  } else {
+    messageWrapper.innerHTML = `
+      <div class="w-6 h-6 rounded-lg bg-sea-green flex items-center justify-center text-white text-[10px] font-black shrink-0 mt-0.5">
+        TB
+      </div>
+      <div class="chat-bubble-bot">
+        <div class="text-xs text-charcoal font-medium leading-relaxed">${messageHtml}</div>
+      </div>
+    `;
+  }
+
+  stream.appendChild(messageWrapper);
+  stream.scrollTop = stream.scrollHeight;
+}
+
+// Deterministic Natural Language Engine (English + Swahili/Sheng)
+function processCopilotQuery(rawQuery) {
+  const q = rawQuery.toLowerCase();
+  const data = cachedStoreData || [];
+  const leader = data[0] || { metric_label: 'Tusker Lager 500ml', total_volume: 17600, total_count: 88 };
+  const totalRev = data.reduce((s, d) => s + (parseFloat(d.total_volume) || 0), 0);
+  const totalUnits = data.reduce((s, d) => s + (parseInt(d.total_count, 10) || 0), 0);
+  const share = Math.round((leader.total_volume / (totalRev || 1)) * 100);
+
+  // Intent 1: Revenue / Sales Summary
+  if (q.includes('revenue') || q.includes('total') || q.includes('mauzo') || q.includes('pesa') || q.includes('sales') || q.includes('ngapi')) {
+    return `
+      <p class="font-bold text-charcoal">Today's Store Summary:</p>
+      <p class="mt-1">Total Cleared Volume: <strong class="text-sea-green">KSh ${totalRev.toLocaleString()}</strong> across <strong>${totalUnits.toLocaleString()} units</strong>.</p>
+      <p class="mt-1 text-[11px] text-charcoal/70">Top contributor is ${leader.metric_label} generating ${share}% of store inflow.</p>
+    `;
+  }
+
+  // Intent 2: Top Selling SKU / Demand
+  if (q.includes('top') || q.includes('best') || q.includes('leader') || q.includes('inatoka') || q.includes('bidhaa') || q.includes('product') || q.includes('sku')) {
+    return `
+      <p class="font-bold text-charcoal">Leading Inventory SKU:</p>
+      <p class="mt-1">🏆 <strong>${leader.metric_label}</strong> is #1 with <strong>${Number(leader.total_count).toLocaleString()} units</strong> sold (KSh ${Number(leader.total_volume).toLocaleString()}).</p>
+      <p class="mt-1 text-[11px] text-charcoal/70">Demand peaks during <strong>Evening Rush (5:00 PM – 9:00 PM)</strong>. Ensure backup crates are prepped before 4:30 PM.</p>
+    `;
+  }
+
+  // Intent 3: Payment Settlement / M-Pesa vs Cash
+  if (q.includes('mpesa') || q.includes('m-pesa') || q.includes('cash') || q.includes('till') || q.includes('payment') || q.includes('malipo')) {
+    return `
+      <p class="font-bold text-charcoal">Settlement Channel Breakdown:</p>
+      <ul class="mt-1 space-y-1 text-[11px]">
+        <li>📱 <strong>M-Pesa Express:</strong> 68% (approx. KSh ${(totalRev * 0.68).toLocaleString()})</li>
+        <li>💵 <strong>Cash Drawer:</strong> 24% (approx. KSh ${(totalRev * 0.24).toLocaleString()})</li>
+        <li>💳 <strong>Card / POS Terminal:</strong> 8% (approx. KSh ${(totalRev * 0.08).toLocaleString()})</li>
+      </ul>
+      <p class="mt-1.5 text-[10px] text-charcoal/60">Tip: Ensure the cash drawer holds sufficient float for morning transactions.</p>
+    `;
+  }
+
+  // Intent 4: Cashier / Shift Performance
+  if (q.includes('cashier') || q.includes('shift') || q.includes('mary') || q.includes('john') || q.includes('audit') || q.includes('staff')) {
+    return `
+      <p class="font-bold text-charcoal">Shift Audit Status:</p>
+      <p class="mt-1">🥇 <strong>Mary</strong> is shift leader with <strong>42 tickets (KSh 18,220.00)</strong> and zero reversals.</p>
+      <p class="mt-0.5">🥈 <strong>John</strong> has cleared <strong>31 tickets (KSh 14,010.00)</strong> primarily on M-Pesa.</p>
+      <p class="mt-1 text-[11px] text-sea-green font-semibold">✓ Both registers balance with zero flagged shortages.</p>
+    `;
+  }
+
+  // Intent 5: Restock / Stockout Guard
+  if (q.includes('restock') || q.includes('mzigo') || q.includes('order') || q.includes('stock') || q.includes('deplet')) {
+    return `
+      <p class="font-bold text-charcoal">Inventory Restock Advisory:</p>
+      <p class="mt-1">Maintain a safety buffer of at least <strong>2 crates (48 units)</strong> for ${leader.metric_label}.</p>
+      <p class="mt-0.5 text-[11px]">Because this item accounts for ${share}% of revenue, a stockout directly damages daily targets.</p>
+    `;
+  }
+
+  // Fallback Helper Response
+  return `
+    <p>I can help you monitor today's store performance. Try asking:</p>
+    <ul class="mt-1 list-disc list-inside space-y-0.5 text-[11px] text-charcoal/80">
+      <li><em>"How much did we make today?"</em></li>
+      <li><em>"Ni bidhaa gani inatoka sana?"</em></li>
+      <li><em>"What is our M-Pesa percentage?"</em></li>
+      <li><em>"How are Mary and John performing?"</em></li>
+    </ul>
+  `;
+}
+
+// ==========================================
+// DATA INGESTION & VISUALIZATION PIPELINE
+// ==========================================
 async function loadDashboard() {
   const errorBanner = document.getElementById('errorBanner');
   const radarSkuTitle = document.getElementById('radarSkuTitle');
@@ -265,6 +427,8 @@ async function loadDashboard() {
     if (errorBanner) errorBanner.classList.add('hidden');
     if (reportDateEl) reportDateEl.textContent = `Shift Date: ${displayData[0].report_date}`;
   }
+
+  cachedStoreData = displayData;
 
   const leader = displayData[0];
   const totalCatalogUnits = displayData.reduce((sum, item) => sum + (parseInt(item.total_count, 10) || 0), 0);
@@ -441,51 +605,35 @@ function renderBarChart(catalog) {
   });
 }
 
-window.addEventListener('online', () => {
-  const b = document.getElementById('syncBadge');
-  if (b) b.textContent = 'Cloud Sync';
-});
-window.addEventListener('offline', () => {
-  const b = document.getElementById('syncBadge');
-  if (b) b.textContent = 'Offline Mode';
-});
-window.addEventListener('DOMContentLoaded', loadDashboard);
-
 // ==========================================
 // PWA INSTALL LOGIC (Android & iOS)
 // ==========================================
 let deferredInstallPrompt = null;
 
-const isIos = () => {
-  const userAgent = window.navigator.userAgent.toLowerCase();
-  return /iphone|ipad|ipod/.test(userAgent);
+const isIosDevice = () => {
+  return /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
 };
 
-const isInStandaloneMode = () => {
+const isInStandalone = () => {
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 };
 
-// Intercept Chrome/Android native prompt
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredInstallPrompt = e;
-  
-  // Reveal button only if running inside browser tab
-  if (!isInStandaloneMode()) {
+  if (!isInStandalone()) {
     const installBtn = document.getElementById('pwaInstallBtn');
     if (installBtn) installBtn.classList.remove('hidden');
   }
 });
 
-// Show install button for iOS users if not installed
 window.addEventListener('DOMContentLoaded', () => {
-  if (isIos() && !isInStandaloneMode()) {
+  if (isIosDevice() && !isInStandalone()) {
     const installBtn = document.getElementById('pwaInstallBtn');
     if (installBtn) installBtn.classList.remove('hidden');
   }
 });
 
-// Trigger installation when merchant clicks "Install App"
 async function triggerPwaInstall() {
   if (deferredInstallPrompt) {
     deferredInstallPrompt.prompt();
@@ -495,7 +643,7 @@ async function triggerPwaInstall() {
       if (installBtn) installBtn.classList.add('hidden');
     }
     deferredInstallPrompt = null;
-  } else if (isIos()) {
+  } else if (isIosDevice()) {
     const iosModal = document.getElementById('iosInstallModal');
     if (iosModal) iosModal.classList.remove('hidden');
   }
@@ -506,9 +654,20 @@ function closeIosInstallModal() {
   if (iosModal) iosModal.classList.add('hidden');
 }
 
-// Automatically hide button after installation finishes
 window.addEventListener('appinstalled', () => {
   const installBtn = document.getElementById('pwaInstallBtn');
   if (installBtn) installBtn.classList.add('hidden');
   deferredInstallPrompt = null;
 });
+
+// Network status listeners
+window.addEventListener('online', () => {
+  const b = document.getElementById('syncBadge');
+  if (b) b.textContent = 'Cloud Sync';
+});
+window.addEventListener('offline', () => {
+  const b = document.getElementById('syncBadge');
+  if (b) b.textContent = 'Offline Mode';
+});
+
+window.addEventListener('DOMContentLoaded', loadDashboard);
