@@ -49,7 +49,6 @@ function switchTab(targetTab) {
     }
   });
 
-  // Re-render chart geometries when returning to their panels
   if (targetTab === 'overview' && radarChartInstance) {
     radarChartInstance.resize();
   }
@@ -180,7 +179,6 @@ function processCopilotQuery(rawQuery) {
     `;
   }
 
-  // Fallback Guide
   return `
     <p>I can help you monitor today's store performance. Try asking:</p>
     <ul class="mt-1 list-disc list-inside space-y-0.5 text-[11px] text-charcoal/80">
@@ -214,19 +212,22 @@ async function loadDashboard() {
 
   try {
     const cleanKey = SUPABASE_ANON_KEY.trim();
-    const client = window.supabase.createClient(SUPABASE_URL, cleanKey);
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      const client = window.supabase.createClient(SUPABASE_URL, cleanKey);
 
-    const { data: rawAggregates, error: aggError } = await client
-      .from('daily_aggregates')
-      .select('report_date, metric_label, total_volume, total_count, metric_key')
-      .ilike('metric_type', 'PRODUCT_PERFORM%')
-      .order('total_volume', { ascending: false });
+      const { data: rawAggregates, error: aggError } = await client
+        .from('daily_aggregates')
+        .select('report_date, metric_label, total_volume, total_count, metric_key')
+        .ilike('metric_type', 'PRODUCT_PERFORM%')
+        .order('total_volume', { ascending: false });
 
-    if (aggError) throw aggError;
+      if (aggError) throw aggError;
 
-    displayData = rawAggregates || [];
-    if (displayData.length === 0) isDemoFallback = true;
-
+      displayData = rawAggregates || [];
+      if (displayData.length === 0) isDemoFallback = true;
+    } else {
+      isDemoFallback = true;
+    }
   } catch (err) {
     console.warn('Using live fallback demonstration dataset:', err.message);
     isDemoFallback = true;
@@ -251,26 +252,26 @@ async function loadDashboard() {
   const totalCatalogUnits = displayData.reduce((sum, item) => sum + (parseInt(item.total_count, 10) || 0), 0);
   const totalCatalogRevenue = displayData.reduce((sum, item) => sum + (parseFloat(item.total_volume) || 0), 0);
 
-  // Unhide Skeletons
+  // Safely reveal skeleton elements
   document.getElementById('unitsSkeleton')?.classList.add('hidden');
   document.getElementById('revenueSkeleton')?.classList.add('hidden');
   totalUnitsEl?.classList.remove('hidden');
   totalRevenueEl?.classList.remove('hidden');
 
-  totalUnitsEl.textContent = totalCatalogUnits.toLocaleString();
-  totalRevenueEl.textContent = `KSh ${totalCatalogRevenue.toLocaleString()}`;
+  if (totalUnitsEl) totalUnitsEl.textContent = totalCatalogUnits.toLocaleString();
+  if (totalRevenueEl) totalRevenueEl.textContent = `KSh ${totalCatalogRevenue.toLocaleString()}`;
 
   // Populate Leader Context
-  radarSkuTitle.textContent = leader.metric_label;
-  radarUnits.textContent = Number(leader.total_count).toLocaleString();
+  if (radarSkuTitle) radarSkuTitle.textContent = leader.metric_label;
+  if (radarUnits) radarUnits.textContent = Number(leader.total_count).toLocaleString();
 
   const volumeShare = Math.round((leader.total_volume / (totalCatalogRevenue || 1)) * 100);
-  radarShare.textContent = `${volumeShare}%`;
+  if (radarShare) radarShare.textContent = `${volumeShare}%`;
 
   const radarPercentages = [4, 8, 18, 10, 38, 22, 65, 35];
-  radarPeak.textContent = 'Evening 5–9pm';
-  radarFooterBadge.textContent = `${Number(leader.total_count).toLocaleString()} Units Tracked`;
-  radarShiftLabel.textContent = `${leader.metric_label} • Shift: ${leader.report_date}`;
+  if (radarPeak) radarPeak.textContent = 'Evening 5–9pm';
+  if (radarFooterBadge) radarFooterBadge.textContent = `${Number(leader.total_count).toLocaleString()} Units Tracked`;
+  if (radarShiftLabel) radarShiftLabel.textContent = `${leader.metric_label} • Shift: ${leader.report_date}`;
 
   // Populate Itemized Table in Catalog View
   if (catalogTableBody) {
@@ -477,7 +478,7 @@ window.addEventListener('appinstalled', () => {
   deferredInstallPrompt = null;
 });
 
-// Network status listeners
+// Network status listeners with safe element checks
 window.addEventListener('online', () => {
   const b = document.getElementById('syncBadge');
   if (b) b.textContent = 'Cloud Sync';
