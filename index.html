@@ -51,7 +51,7 @@
   <!-- Main Content Stacking Layer -->
   <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-6 main-content-layer">
 
-   <!-- Update the Boxed Header Container around line 46 -->
+    <!-- Boxed Header Container -->
     <header class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-charcoal/10 gap-4">
       <div class="card-vanilla px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border border-charcoal/10 flex items-center gap-3.5 shadow-sm max-w-fit">
         <div class="w-8 h-8 rounded-xl bg-sea-green/15 flex items-center justify-center shrink-0 border border-sea-green/20">
@@ -68,7 +68,7 @@
       </div>
 
       <div class="flex items-center gap-2 self-start sm:self-auto">
-        <!-- Install App Button (Hidden when app is already installed) -->
+        <!-- Install App Button -->
         <button id="pwaInstallBtn" onclick="triggerPwaInstall()" class="hidden card-vanilla px-3.5 py-2 rounded-full border border-sea-green/30 shadow-sm flex items-center gap-2 hover:bg-sea-green/10 active:scale-95 transition-all duration-200 cursor-pointer">
           <svg class="w-3.5 h-3.5 text-sea-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
@@ -302,10 +302,10 @@
   </div>
 
   <!-- ======================================================== -->
-  <!-- TWIGA MSAIDIZI (FLOATING TRIGGER & HORIZONTAL CAROUSEL)   -->
+  <!-- TWIGA MSAIDIZI (TRIGGER & DUAL-MODE DRAWER: PLAYBOOK/AI) -->
   <!-- ======================================================== -->
 
-  <!-- Floating Assistant Pill Trigger (Anchored Above Bottom Dock) -->
+  <!-- Floating Assistant Pill Trigger -->
   <aside class="fixed bottom-24 right-4 sm:right-8 z-40">
     <button onclick="toggleHelperDrawer()" id="msaidiziFab" class="card-vanilla px-3.5 py-2.5 rounded-full border border-charcoal/15 shadow-xl flex items-center gap-2.5 group hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer">
       <span class="relative flex h-3 w-3">
@@ -313,52 +313,62 @@
         <span class="relative inline-flex rounded-full h-3 w-3 bg-sea-green"></span>
       </span>
       <span class="text-xs font-black uppercase tracking-wider text-charcoal">Twiga Msaidizi</span>
-      <span class="gold-badge text-[9px] font-black uppercase px-1.5 py-0.5 rounded">Guide</span>
+      <span class="gold-badge text-[9px] font-black uppercase px-1.5 py-0.5 rounded">AI Copilot</span>
     </button>
   </aside>
 
   <!-- Drawer Modal Backdrop -->
   <div id="drawerBackdrop" onclick="toggleHelperDrawer()" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 hidden opacity-0 transition-opacity duration-300"></div>
 
-  <!-- Slide-Up Contextual Carousel Sheet -->
-  <section id="helperDrawer" class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-[#EDE5C8] rounded-t-3xl border-t border-x border-charcoal/15 shadow-2xl transform translate-y-full transition-transform duration-300 ease-out flex flex-col">
+  <!-- Slide-Up Contextual Drawer (Carousel + Natural Language Copilot) -->
+  <section id="helperDrawer" class="fixed bottom-0 left-0 right-0 max-w-xl mx-auto z-50 bg-[#EDE5C8] rounded-t-3xl border-t border-x border-charcoal/15 shadow-2xl transform translate-y-full transition-transform duration-300 ease-out flex flex-col max-h-[88vh]">
     
     <!-- Drawer Header -->
-    <div class="px-5 py-4 border-b border-charcoal/10 flex items-center justify-between shrink-0">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-xl bg-sea-green/15 flex items-center justify-center border border-sea-green/20">
-          <svg class="w-4 h-4 text-sea-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    <div class="px-5 py-4 border-b border-charcoal/10 shrink-0">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-sea-green/15 flex items-center justify-center border border-sea-green/20">
+            <svg class="w-4 h-4 text-sea-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-black text-charcoal uppercase tracking-tight">Twiga Msaidizi AI</h2>
+            <p id="msaidiziModeSubtitle" class="text-[11px] text-charcoal/60 font-semibold">Store Intelligence & Conversational Copilot</p>
+          </div>
+        </div>
+        
+        <!-- Close Button -->
+        <button onclick="toggleHelperDrawer()" class="p-1.5 rounded-full hover:bg-charcoal/10 text-charcoal/60 hover:text-charcoal transition-colors cursor-pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
           </svg>
-        </div>
-        <div>
-          <h2 class="text-sm font-black text-charcoal uppercase tracking-tight">Twiga Msaidizi &bull; Guide</h2>
-          <p id="carouselContextLabel" class="text-[11px] text-charcoal/60 font-semibold">Overview Screen Guidance</p>
-        </div>
+        </button>
       </div>
-      
-      <!-- Close Button -->
-      <button onclick="toggleHelperDrawer()" class="p-1.5 rounded-full hover:bg-charcoal/10 text-charcoal/60 hover:text-charcoal transition-colors cursor-pointer">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
+
+      <!-- Segmented Toggle: Playbook vs Ask Copilot -->
+      <div class="mt-3.5 grid grid-cols-2 p-1 bg-charcoal/5 rounded-2xl border border-charcoal/10 text-center">
+        <button onclick="switchMsaidiziMode('playbook')" id="modeBtnPlaybook" class="py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 bg-sea-green text-white shadow-sm cursor-pointer">
+          📖 Playbook
+        </button>
+        <button onclick="switchMsaidiziMode('chat')" id="modeBtnChat" class="py-2 text-xs font-black uppercase rounded-xl transition-all duration-200 text-charcoal/70 hover:text-charcoal cursor-pointer">
+          💬 Ask Copilot
+        </button>
+      </div>
     </div>
 
-    <!-- Active Single-Slide Viewport -->
-    <div class="p-5">
+    <!-- Mode 1: Contextual Carousel Container -->
+    <div id="msaidiziPlaybookContainer" class="p-5 flex-1 overflow-y-auto">
       <article id="carouselSlideCard" class="p-5 rounded-2xl bg-canvas border border-charcoal/10 shadow-sm min-h-[220px] flex flex-col justify-between">
-        <!-- Injected via app.js -->
+        <!-- Dynamically populated in app.js -->
       </article>
 
       <!-- Carousel Navigation Controls -->
       <div class="mt-4 flex items-center justify-between pt-2 border-t border-charcoal/10">
-        <!-- Slide Indicator Dots -->
         <div id="carouselDots" class="flex items-center gap-1.5">
           <!-- Dots rendered dynamically -->
         </div>
 
-        <!-- Prev / Next Controls -->
         <div class="flex items-center gap-2">
           <button onclick="prevSlide()" id="btnPrevSlide" class="px-3 py-1.5 rounded-xl border border-charcoal/20 bg-canvas text-charcoal text-xs font-bold hover:bg-vanilla disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer">
             &larr; Prev
@@ -370,9 +380,54 @@
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="px-5 py-3 border-t border-charcoal/10 bg-canvas/60 rounded-b-3xl flex justify-between items-center text-[10px] font-mono text-charcoal/50">
-      <span>Twiga Contextual Engine</span>
+    <!-- Mode 2: In-App Natural Language Copilot Chat Container -->
+    <div id="msaidiziChatContainer" class="hidden flex-1 flex flex-col min-h-[340px] max-h-[500px]">
+      
+      <!-- Quick Prompt Suggestions Chips -->
+      <div class="px-4 pt-3 pb-2 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 border-b border-charcoal/5">
+        <button onclick="sendQuickPrompt('Today revenue summary')" class="chip-suggestion">💰 Revenue Leo</button>
+        <button onclick="sendQuickPrompt('Which product is leading?')" class="chip-suggestion">🏆 Top SKU</button>
+        <button onclick="sendQuickPrompt('M-Pesa vs Cash balance')" class="chip-suggestion">📱 M-Pesa vs Cash</button>
+        <button onclick="sendQuickPrompt('Cashier performance')" class="chip-suggestion">👥 Cashiers</button>
+      </div>
+
+      <!-- Chat Stream Messages List -->
+      <div id="chatMessagesStream" class="flex-1 p-4 overflow-y-auto space-y-3 font-sans">
+        <!-- Initial Welcome Message from Twiga Bot -->
+        <div class="flex items-start gap-2.5">
+          <div class="w-6 h-6 rounded-lg bg-sea-green flex items-center justify-center text-white text-[10px] font-black shrink-0 mt-0.5">
+            TB
+          </div>
+          <div class="chat-bubble-bot">
+            <p class="font-bold text-xs text-charcoal">Habari! I am your Twiga Store Copilot.</p>
+            <p class="text-[11px] text-charcoal/80 mt-1">
+              Ask me anything about today's register receipts, product rushes, or cashier settlements in English or Sheng/Swahili.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Dock -->
+      <form onsubmit="handleChatSubmit(event)" class="p-3 border-t border-charcoal/10 bg-canvas/80 flex items-center gap-2 shrink-0">
+        <input 
+          type="text" 
+          id="chatInput" 
+          placeholder="Ask e.g. 'How much did we clear today?' or 'Ni nini inatoka sana?'..." 
+          class="flex-1 bg-vanilla text-xs text-charcoal placeholder-charcoal/50 px-3.5 py-2.5 rounded-xl border border-charcoal/15 focus:outline-none focus:border-sea-green font-medium"
+          autocomplete="off"
+        />
+        <button type="submit" id="chatSendBtn" class="p-2.5 bg-sea-green text-white rounded-xl shadow-sm hover:bg-sea-green/90 active:scale-95 transition-all cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+          </svg>
+        </button>
+      </form>
+
+    </div>
+
+    <!-- Drawer Universal Footer -->
+    <div class="px-5 py-2.5 border-t border-charcoal/10 bg-canvas/60 rounded-b-3xl flex justify-between items-center text-[10px] font-mono text-charcoal/50 shrink-0">
+      <span id="drawerStatusText">Twiga Natural Language Engine v1</span>
       <span id="slideCounterText">Card 1 of 3</span>
     </div>
 
@@ -411,38 +466,5 @@
     </div>
   </nav>
 
-<!-- iOS Installation Guide Modal -->
-  <div id="iosInstallModal" class="fixed inset-0 bg-charcoal/40 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-4">
-    <div class="card-vanilla p-6 rounded-3xl max-w-sm w-full border border-charcoal/15 shadow-2xl space-y-4">
-      <div class="flex justify-between items-start">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-xl bg-sea-green/15 flex items-center justify-center text-sea-green">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-            </svg>
-          </div>
-          <h3 class="text-sm font-black text-charcoal uppercase tracking-wider">Install on iPhone / iPad</h3>
-        </div>
-        <button onclick="closeIosInstallModal()" class="text-charcoal/60 hover:text-charcoal p-1">✕</button>
-      </div>
-      <p class="text-xs text-charcoal/80 font-medium leading-relaxed">
-        Safari requires two quick steps to install this app to your home screen:
-      </p>
-      <div class="space-y-2 text-xs font-semibold text-charcoal">
-        <div class="flex items-center gap-2.5 p-2.5 bg-canvas rounded-xl border border-charcoal/10">
-          <span class="w-5 h-5 rounded-full bg-sea-green text-white flex items-center justify-center text-[10px] shrink-0 font-bold">1</span>
-          <span>Tap the <strong>Share</strong> icon in the bottom Safari bar.</span>
-        </div>
-        <div class="flex items-center gap-2.5 p-2.5 bg-canvas rounded-xl border border-charcoal/10">
-          <span class="w-5 h-5 rounded-full bg-sea-green text-white flex items-center justify-center text-[10px] shrink-0 font-bold">2</span>
-          <span>Scroll down and select <strong>"Add to Home Screen"</strong>.</span>
-        </div>
-      </div>
-      <button onclick="closeIosInstallModal()" class="w-full py-2.5 bg-sea-green text-white text-xs font-bold rounded-xl shadow-sm hover:bg-sea-green/90 transition-colors">
-        Got It
-      </button>
-    </div>
-  </div>
-  
-</body>
-</html>
+  <!-- iOS Installation Guide Modal -->
+  <div id="iosInstallModal" class="fixed inset-
